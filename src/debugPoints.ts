@@ -3,7 +3,11 @@ import axios from "axios";
 import { OllamaConfig } from "./types.js";
 import { PaperlessAPI } from "./paperlessAPI.js";
 
-export function setupDebugEndpoints(app: express.Application, ollamaConfig: OllamaConfig, paperlessAPI: PaperlessAPI) {
+export function setupDebugEndpoints(
+    app: express.Application,
+    ollamaConfig: OllamaConfig,
+    paperlessAPI: PaperlessAPI
+) {
     app.get("/debug/ollama", async (req, res) => {
         try {
             const modelsResponse = await axios.get(
@@ -55,6 +59,4 @@ export function setupDebugEndpoints(app: express.Application, ollamaConfig: Olla
             });
         }
     });
-
-    console.log("Debug endpoints configured");
 }

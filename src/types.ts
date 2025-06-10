@@ -45,7 +45,6 @@ export interface PaperlessDocument {
     custom_fields?: any[];
     page_count: number;
     mime_type: string;
-
 }
 
 export interface PaperlessSearchResponse {

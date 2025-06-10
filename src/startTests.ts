@@ -7,7 +7,9 @@ import { OllamaConfig } from "./types.js";
  * @param ollamaConfig Configuration for Ollama
  * @returns true if connection is successful, false otherwise
  */
-export async function testOllamaConnection(ollamaConfig: OllamaConfig): Promise<boolean> {
+export async function testOllamaConnection(
+    ollamaConfig: OllamaConfig
+): Promise<boolean> {
     try {
         await axios.get(`${ollamaConfig.baseUrl}/api/tags`);
         console.log("Ollama connection successful");
@@ -23,15 +25,14 @@ export async function testOllamaConnection(ollamaConfig: OllamaConfig): Promise<
  * @param paperlessAPI Paperless API instance
  * @returns true if connection is successful, false otherwise
  */
-export async function testPaperlessConnection(paperlessAPI: PaperlessAPI): Promise<boolean> {
+export async function testPaperlessConnection(
+    paperlessAPI: PaperlessAPI
+): Promise<boolean> {
     try {
         const headers = paperlessAPI.getPaperlessHeaders();
-        await axios.get(
-            `${paperlessAPI.paperlessConfig.baseUrl}/api/`,
-            {
-                headers,
-            }
-        );
+        await axios.get(`${paperlessAPI.paperlessConfig.baseUrl}/api/`, {
+            headers,
+        });
         console.log("Paperless NGX connection successful");
         return true;
     } catch (error: any) {

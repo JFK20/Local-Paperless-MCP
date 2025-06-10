@@ -307,12 +307,18 @@ Please provide a synthesized answer that combines insights from all relevant doc
 
         // Add debug endpoints only in development mode
         if (isDevMode) {
-            import("./debugPoints.js").then(module => {
-                module.setupDebugEndpoints(this.app, this.ollamaConfig, this.paperlessAPI);
-                console.log("Debug endpoints loaded in development mode");
-            }).catch(err => {
-                console.error("Failed to load debug endpoints:", err);
-            });
+            import("./debugPoints.js")
+                .then((module) => {
+                    module.setupDebugEndpoints(
+                        this.app,
+                        this.ollamaConfig,
+                        this.paperlessAPI
+                    );
+                    console.log("Debug endpoints loaded in development mode");
+                })
+                .catch((err) => {
+                    console.error("Failed to load debug endpoints:", err);
+                });
         }
     }
 
@@ -784,7 +790,9 @@ Please provide a synthesized answer that combines insights from all relevant doc
     async start() {
         // Test connections first
         const ollamaConnected = await testOllamaConnection(this.ollamaConfig);
-        const paperlessConnected = await testPaperlessConnection(this.paperlessAPI);
+        const paperlessConnected = await testPaperlessConnection(
+            this.paperlessAPI
+        );
 
         if (!ollamaConnected) {
             console.error("Cannot start server: Ollama is not accessible");
@@ -808,7 +816,7 @@ Please provide a synthesized answer that combines insights from all relevant doc
                 `OpenAI API endpoint: http://localhost:${this.port}/v1`
             );
             console.log(`Health: http://localhost:${this.port}/health`);
-            if( isDevMode) {
+            if (isDevMode) {
                 console.log(`Debug endpoints:`);
                 console.log(
                     `   - Ollama: http://localhost:${this.port}/debug/ollama`

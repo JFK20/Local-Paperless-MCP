@@ -10,6 +10,8 @@ import axios from "axios";
 import cors from "cors";
 import { PaperlessAPI } from "./paperlessAPI.js";
 import { testOllamaConnection, testPaperlessConnection } from "./startTests.js";
+import "dotenv/config";
+const isDevMode = process.env.NODE_ENV === "development";
 
 export class McpOpenAIBridge {
     private app: express.Application;
@@ -50,6 +52,9 @@ export class McpOpenAIBridge {
         this.setupMCPHandlers();
     }
 
+    /*
+     * Analyze a specific document using Ollama
+     */
     private async analyzeDocument(args: any) {
         try {
             const { documentId, question } = args;
@@ -98,6 +103,11 @@ Please provide a detailed answer based on the document content:`;
         }
     }
 
+    /*
+     * Searches for documents in Paperless NGX and analyzes them to answer a question.
+     * The search query is derived from the user's message and given to Paperless NGX to find matching documents.
+     * Then, each document is analyzed using Ollama.
+     */
     private async searchAndAnalyze(args: any) {
         try {
             const { query, question, limit = 5 } = args;
@@ -287,58 +297,6 @@ Please provide a synthesized answer that combines insights from all relevant doc
             }
         });
 
-        this.app.get("/debug/ollama", async (req, res) => {
-            try {
-                const modelsResponse = await axios.get(
-                    `${this.ollamaConfig.baseUrl}/api/tags`
-                );
-                res.json({
-                    status: "connected",
-                    baseUrl: this.ollamaConfig.baseUrl,
-                    configuredModel: this.ollamaConfig.model,
-                    availableModels: modelsResponse.data.models || [],
-                    timestamp: new Date().toISOString(),
-                });
-            } catch (error: any) {
-                res.status(500).json({
-                    status: "error",
-                    baseUrl: this.ollamaConfig.baseUrl,
-                    configuredModel: this.ollamaConfig.model,
-                    error: error.message,
-                    timestamp: new Date().toISOString(),
-                });
-            }
-        });
-
-        this.app.get("/debug/paperless", async (req, res) => {
-            try {
-                const headers = this.paperlessAPI.getPaperlessHeaders();
-                const statusResponse = await axios.get(
-                    `${this.paperlessAPI.paperlessConfig.baseUrl}/api/`,
-                    { headers }
-                );
-                res.json({
-                    status: "connected",
-                    baseUrl: this.paperlessAPI.paperlessConfig.baseUrl,
-                    version: statusResponse.data,
-                    authMethod: this.paperlessAPI.paperlessConfig.token
-                        ? "token"
-                        : "username/password",
-                    timestamp: new Date().toISOString(),
-                });
-            } catch (error: any) {
-                res.status(500).json({
-                    status: "error",
-                    baseUrl: this.paperlessAPI.paperlessConfig.baseUrl,
-                    error: error.message,
-                    authMethod: this.paperlessAPI.paperlessConfig.token
-                        ? "token"
-                        : "username/password",
-                    timestamp: new Date().toISOString(),
-                });
-            }
-        });
-
         // Health check endpoint
         this.app.get("/health", (req, res) => {
             res.json({
@@ -346,6 +304,16 @@ Please provide a synthesized answer that combines insights from all relevant doc
                 timestamp: new Date().toISOString(),
             });
         });
+
+        // Add debug endpoints only in development mode
+        if (isDevMode) {
+            import("./debugPoints.js").then(module => {
+                module.setupDebugEndpoints(this.app, this.ollamaConfig, this.paperlessAPI);
+                console.log("Debug endpoints loaded in development mode");
+            }).catch(err => {
+                console.error("Failed to load debug endpoints:", err);
+            });
+        }
     }
 
     private setupMCPHandlers() {
@@ -839,14 +807,16 @@ Please provide a synthesized answer that combines insights from all relevant doc
             console.log(
                 `OpenAI API endpoint: http://localhost:${this.port}/v1`
             );
-            console.log(`Debug endpoints:`);
-            console.log(
-                `   - Ollama: http://localhost:${this.port}/debug/ollama`
-            );
-            console.log(
-                `   - Paperless: http://localhost:${this.port}/debug/paperless`
-            );
-            console.log(`   - Health: http://localhost:${this.port}/health`);
+            console.log(`Health: http://localhost:${this.port}/health`);
+            if( isDevMode) {
+                console.log(`Debug endpoints:`);
+                console.log(
+                    `   - Ollama: http://localhost:${this.port}/debug/ollama`
+                );
+                console.log(
+                    `   - Paperless: http://localhost:${this.port}/debug/paperless`
+                );
+            }
         });
     }
 }

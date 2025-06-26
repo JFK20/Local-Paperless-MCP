@@ -8,19 +8,6 @@ export interface PaperlessConfig {
     token: string;
 }
 
-export interface OpenAIMessage {
-    role: "system" | "user" | "assistant";
-    content: string;
-}
-
-export interface OpenAIChatRequest {
-    model: string;
-    messages: OpenAIMessage[];
-    stream?: boolean;
-    temperature?: number;
-    max_tokens?: number;
-}
-
 //Sinnvolle heraussuchen
 export interface PaperlessDocument {
     id: number;

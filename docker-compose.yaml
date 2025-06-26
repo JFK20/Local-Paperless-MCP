@@ -1,12 +1,7 @@
 services:
   paperless-mcp:
-
     build: .
-
     ports:
       - "3001:3001"
-
     environment:
       NODE_ENV: development
-
-    command: sh -c "npx tsc && node dist/index.js"

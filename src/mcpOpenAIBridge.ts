@@ -1,27 +1,28 @@
-import express from "express";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import {
     CallToolRequestSchema,
     ListToolsRequestSchema,
     Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { OllamaConfig, OpenAIChatRequest, OpenAIMessage } from "./types.js";
+import {
+    OllamaConfig,
+    PaperlessDocument,
+} from "./types.js";
 import axios from "axios";
-import cors from "cors";
 import { PaperlessAPI } from "./paperlessAPI.js";
-import { testOllamaConnection, testPaperlessConnection } from "./startTests.js";
+import { testPaperlessConnection } from "./startTests.js";
 import "dotenv/config";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 const isDevMode = process.env.NODE_ENV === "development";
+import z from "zod";
 
 export class McpOpenAIBridge {
-    private app: express.Application;
     private server: Server;
     private ollamaConfig: OllamaConfig;
     private paperlessAPI: PaperlessAPI;
     private port: number;
 
     constructor() {
-        this.app = express();
         this.port = parseInt(process.env.BRIDGE_PORT || "3001");
         this.paperlessAPI = new PaperlessAPI();
 
@@ -48,7 +49,6 @@ export class McpOpenAIBridge {
             }
         );
 
-        this.setupExpress();
         this.setupMCPHandlers();
     }
 
@@ -232,95 +232,18 @@ Please provide a synthesized answer that combines insights from all relevant doc
         }
     }
 
-    private setupExpress() {
-        this.app.use(cors());
-        this.app.use(express.json());
+    public getDocumentSchema = z.object({
+        documentId: z.number().describe("Document ID to search for"),
+    }) as z.ZodType<{ documentId: number }>;
 
-        // OpenAI-compatible models endpoint
-        this.app.get("/v1/models", (req, res) => {
-            res.json({
-                object: "list",
-                data: [
-                    {
-                        id: "paperless-ollama-mcp",
-                        object: "model",
-                        created: Date.now(),
-                        owned_by: "mcp-server",
-                        permission: [],
-                        root: "paperless-ollama-mcp",
-                        parent: null,
-                    },
-                ],
-            });
-        });
-
-        // OpenAI-compatible chat completions endpoint
-        this.app.post("/v1/chat/completions", async (req, res) => {
-            try {
-                console.log("chat completion request");
-
-                const chatRequest: OpenAIChatRequest = req.body;
-
-                if (chatRequest.stream) {
-                    // Handle streaming response
-                    res.setHeader("Content-Type", "text/event-stream");
-                    res.setHeader("Cache-Control", "no-cache");
-                    res.setHeader("Connection", "keep-alive");
-
-                    res.write("set headers");
-
-                    const response =
-                        await this.handleStreamingChat(chatRequest);
-
-                    // Send streaming response
-                    const chunks = this.createStreamingChunks(response);
-                    for (const chunk of chunks) {
-                        res.write(`data: ${JSON.stringify(chunk)}\n\n`);
-                    }
-                    console.log("streaming response sent");
-                    res.write("data: [DONE]\n\n");
-                    res.end();
-                } else {
-                    // Handle non-streaming response
-                    const response = await this.handleChat(chatRequest);
-                    res.json(response);
-                }
-            } catch (error: any) {
-                console.error("Chat completion error:", error);
-                res.status(500).json({
-                    error: {
-                        message: error.message,
-                        type: "internal_error",
-                        code: "server_error",
-                    },
-                });
-            }
-        });
-
-        // Health check endpoint
-        this.app.get("/health", (req, res) => {
-            res.json({
-                status: "healthy",
-                timestamp: new Date().toISOString(),
-            });
-        });
-
-        // Add debug endpoints only in development mode
-        if (isDevMode) {
-            import("./debugPoints.js")
-                .then((module) => {
-                    module.setupDebugEndpoints(
-                        this.app,
-                        this.ollamaConfig,
-                        this.paperlessAPI
-                    );
-                    console.log("Debug endpoints loaded in development mode");
-                })
-                .catch((err) => {
-                    console.error("Failed to load debug endpoints:", err);
-                });
-        }
-    }
+    public searchDocumentsSchema = z.object({
+        query: z.string().describe("Search query to find documents"),
+        limit: z
+            .number()
+            .optional()
+            .default(10)
+            .describe("Maximum number of documents to return"),
+    }) as z.ZodType<{ query: string; limit?: number }>;
 
     private setupMCPHandlers() {
         // List available tools
@@ -328,23 +251,19 @@ Please provide a synthesized answer that combines insights from all relevant doc
             return {
                 tools: [
                     {
-                        name: "chat_with_ollama",
-                        description: "Send a message to Ollama model",
+                        name: "get_document",
+                        description:
+                            "Get detailed information about a specific document",
                         inputSchema: {
                             type: "object",
                             properties: {
-                                message: {
-                                    type: "string",
-                                    description: "Message to send to the model",
-                                },
-                                model: {
-                                    type: "string",
+                                documentId: {
+                                    type: "number",
                                     description:
-                                        "Ollama model to use (optional)",
-                                    default: this.ollamaConfig.model,
+                                        "Id of the document to retrieve",
                                 },
                             },
-                            required: ["message"],
+                            required: ["documentId"],
                         },
                     },
                     {
@@ -368,23 +287,7 @@ Please provide a synthesized answer that combines insights from all relevant doc
                             required: ["query"],
                         },
                     },
-                    {
-                        name: "get_document",
-                        description:
-                            "Get detailed information about a specific document",
-                        inputSchema: {
-                            type: "object",
-                            properties: {
-                                documentId: {
-                                    type: "number",
-                                    description:
-                                        "ID of the document to retrieve",
-                                },
-                            },
-                            required: ["documentId"],
-                        },
-                    },
-                    {
+                    /*{
                         name: "get_document_content",
                         description:
                             "Get the full text content of a specific document",
@@ -477,32 +380,35 @@ Please provide a synthesized answer that combines insights from all relevant doc
                             },
                             required: ["tagName"],
                         },
-                    },
+                    },*/
                 ] as Tool[],
             };
         });
+
+        //Helper Function to Format a Document
+        function formatDocument(doc: PaperlessDocument) {
+            return `Title: ${doc.title} ID: ${doc.id} \n  Content: ${doc.content.substring(0, 300)}... \n  Tags: ${doc.tags.join(", ")} \n  Correspondent: ${doc.correspondent || "N/A"} \n`;
+        }
 
         // Handle tool calls
         this.server.setRequestHandler(
             CallToolRequestSchema,
             async (request: any) => {
+                let args;
                 switch (request.params.name) {
-                    case "chat_with_ollama":
-                        console.log("normal chat with ollama");
-                        return await this.chatWithOllama(
-                            request.params.arguments
-                        );
-                    case "search_documents":
-                        console.log("search documents");
-                        return await this.paperlessAPI.searchDocuments(
-                            request.params.arguments
-                        );
                     case "get_document":
                         console.log("get document");
-                        return await this.paperlessAPI.getDocument(
+                        args = this.getDocumentSchema.parse(
                             request.params.arguments
                         );
-                    case "get_document_content":
+                        return await this.paperlessAPI.getDocument(args);
+                    case "search_documents":
+                        console.log("search documents");
+                        args = this.searchDocumentsSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.searchDocuments(args);
+                    /*case "get_document_content":
                         console.log("get document content");
                         return await this.paperlessAPI.getDocumentContent(
                             request.params.arguments
@@ -526,7 +432,7 @@ Please provide a synthesized answer that combines insights from all relevant doc
                         console.log("get documents by tag");
                         return await this.paperlessAPI.getDocumentsByTag(
                             request.params.arguments
-                        );
+                        );*/
                     default:
                         throw new Error(`Unknown tool: ${request.params.name}`);
                 }
@@ -562,242 +468,11 @@ Please provide a synthesized answer that combines insights from all relevant doc
         }
     }
 
-    private shouldSearchDocuments(message: string): {
-        search: boolean;
-        query?: string;
-    } {
-        console.log("should search documents y/n?");
-        const searchTriggers = [
-            "search for",
-            "find documents",
-            "look for",
-            "documents about",
-            "papers about",
-            "files containing",
-            "search documents",
-            "find files",
-            "document search",
-            "paperless",
-            "invoice",
-            "receipt",
-            "contract",
-            "tax",
-            "financial",
-            "report",
-            "paperless",
-        ];
-
-        const hasSearchTrigger = searchTriggers.some((trigger) =>
-            message.includes(trigger)
-        );
-
-        console.log("has search trigger: ", hasSearchTrigger);
-
-        return { search: hasSearchTrigger };
-    }
-
-    private extractSearchQuery(message: string): string {
-        // Extract search terms from common patterns
-        const patterns = [
-            /search for (.+?)(?:\s+and|$)/i,
-            /find documents?.*?about (.+?)(?:\s+and|$)/i,
-            /look for (.+?)(?:\s+and|$)/i,
-            /look for (.+?)(?:\s+and|$)/i,
-            /documents?.*?containing (.+?)(?:\s+and|$)/i,
-            /(invoice|receipt|contract|tax|financial|report)s?/i,
-        ];
-
-        for (const pattern of patterns) {
-            const match = message.match(pattern);
-            if (match) {
-                return match[1] || match[0];
-            }
-        }
-
-        // Fallback: extract keywords
-        const words = message
-            .split(" ")
-            .filter(
-                (word) =>
-                    word.length > 3 &&
-                    !["search", "find", "documents", "about"].includes(
-                        word.toLowerCase()
-                    )
-            );
-
-        return words.slice(0, 3).join(" ") || "documents";
-    }
-
-    private extractQuestion(message: string): string | null {
-        // Look for question patterns
-        const questionPatterns = [
-            /what (.+?)\?/i,
-            /how (.+?)\?/i,
-            /when (.+?)\?/i,
-            /where (.+?)\?/i,
-            /who (.+?)\?/i,
-            /why (.+?)\?/i,
-            /which (.+?)\?/i,
-        ];
-
-        for (const pattern of questionPatterns) {
-            const match = message.match(pattern);
-            if (match) {
-                return match[0];
-            }
-        }
-
-        return null;
-    }
-
-    private async handleChat(chatRequest: OpenAIChatRequest) {
-        // Convert OpenAI messages to a single prompt
-        const prompt = this.convertMessagesToPrompt(chatRequest.messages);
-        const lastMessage =
-            chatRequest.messages[
-                chatRequest.messages.length - 1
-            ].content.toLowerCase();
-
-        const needsSearch = this.shouldSearchDocuments(lastMessage);
-        let responseText: string;
-
-        if (needsSearch.search) {
-            console.log("searching documents");
-            // Extract search query and question from the message
-            const query = this.extractSearchQuery(lastMessage);
-            const question = this.extractQuestion(lastMessage) || lastMessage;
-
-            console.log("query: ", query);
-            console.log("question: ", question);
-
-            try {
-                const searchResponse = await this.searchAndAnalyze({
-                    query: query,
-                    question: question,
-                    limit: 5,
-                });
-
-                const searchData = JSON.parse(searchResponse.content[0].text);
-
-                responseText =
-                    searchData.summary || "No relevant documents found.";
-            } catch (error) {
-                console.error("Document search failed:", error);
-                responseText =
-                    "I encountered an error searching documents. Let me try to help with general information instead.";
-
-                // Fallback to regular Ollama chat
-                const mcpResponse = await this.chatWithOllama({
-                    message: prompt,
-                });
-                responseText = mcpResponse.content[0].text;
-            }
-        } else {
-            // Regular chat without document search
-            const mcpResponse = await this.chatWithOllama({ message: prompt });
-            responseText = mcpResponse.content[0].text;
-        }
-
-        // Return OpenAI-compatible response
-        return {
-            id: `chatcmpl-${Date.now()}`,
-            object: "chat.completion",
-            created: Math.floor(Date.now() / 1000),
-            model: chatRequest.model,
-            choices: [
-                {
-                    index: 0,
-                    message: {
-                        role: "assistant",
-                        content: responseText,
-                    },
-                    finish_reason: "stop",
-                },
-            ],
-            usage: {
-                prompt_tokens: Math.ceil(prompt.length / 4), // Rough estimate
-                completion_tokens: Math.ceil(responseText.length / 4),
-                total_tokens: Math.ceil(
-                    (prompt.length + responseText.length) / 4
-                ),
-            },
-        };
-    }
-
-    private async handleStreamingChat(chatRequest: OpenAIChatRequest) {
-        // For now, we'll simulate streaming by calling the regular API
-        // and breaking the response into chunks
-        const response = await this.handleChat(chatRequest);
-        return response.choices[0].message.content;
-    }
-
-    private createStreamingChunks(text: string) {
-        const words = text.split(" ");
-        const chunks = [];
-
-        for (let i = 0; i < words.length; i++) {
-            chunks.push({
-                id: `chatcmpl-${Date.now()}-${i}`,
-                object: "chat.completion.chunk",
-                created: Math.floor(Date.now() / 1000),
-                model: "paperless-ollama-mcp",
-                choices: [
-                    {
-                        index: 0,
-                        delta: {
-                            content: (i === 0 ? "" : " ") + words[i],
-                        },
-                        finish_reason: null,
-                    },
-                ],
-            });
-        }
-
-        // Final chunk
-        chunks.push({
-            id: `chatcmpl-${Date.now()}-final`,
-            object: "chat.completion.chunk",
-            created: Math.floor(Date.now() / 1000),
-            model: "paperless-ollama-mcp",
-            choices: [
-                {
-                    index: 0,
-                    delta: {},
-                    finish_reason: "stop",
-                },
-            ],
-        });
-
-        return chunks;
-    }
-
-    private convertMessagesToPrompt(messages: OpenAIMessage[]): string {
-        return (
-            messages
-                .map((msg) => {
-                    if (msg.role === "system") {
-                        return `System: ${msg.content}`;
-                    } else if (msg.role === "user") {
-                        return `Human: ${msg.content}`;
-                    } else {
-                        return `Assistant: ${msg.content}`;
-                    }
-                })
-                .join("\n\n") + "\n\nAssistant:"
-        );
-    }
-
     async start() {
         // Test connections first
-        const ollamaConnected = await testOllamaConnection(this.ollamaConfig);
         const paperlessConnected = await testPaperlessConnection(
             this.paperlessAPI
         );
-
-        if (!ollamaConnected) {
-            console.error("Cannot start server: Ollama is not accessible");
-            process.exit(1);
-        }
 
         if (!paperlessConnected) {
             console.error(
@@ -805,26 +480,8 @@ Please provide a synthesized answer that combines insights from all relevant doc
             );
             process.exit(1);
         }
-
-        // Start Express server
-        this.app.listen(this.port, () => {
-            console.log(
-                `OpenAI-compatible MCP Bridge running on port ${this.port}`
-            );
-            console.log(`Base URL: http://localhost:${this.port}`);
-            console.log(
-                `OpenAI API endpoint: http://localhost:${this.port}/v1`
-            );
-            console.log(`Health: http://localhost:${this.port}/health`);
-            if (isDevMode) {
-                console.log(`Debug endpoints:`);
-                console.log(
-                    `   - Ollama: http://localhost:${this.port}/debug/ollama`
-                );
-                console.log(
-                    `   - Paperless: http://localhost:${this.port}/debug/paperless`
-                );
-            }
-        });
+        console.log("Starting");
+        const transport = new StdioServerTransport();
+        await this.server.connect(transport);
     }
 }

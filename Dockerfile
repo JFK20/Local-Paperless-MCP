@@ -3,7 +3,6 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-COPY docker.env .env
 RUN npm run build
 
 FROM ghcr.io/astral-sh/uv:debian-slim

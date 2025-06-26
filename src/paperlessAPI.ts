@@ -34,9 +34,9 @@ export class PaperlessAPI {
         return headers;
     }
 
-    public async searchDocuments(args: { query: string; limit?: number }) {
+    public async searchDocuments(args: { title: string; limit?: number }) {
         try {
-            const { query, limit = 10 } = args;
+            const { title, limit = 10 } = args;
             const headers = this.getPaperlessHeaders();
 
             const response = await axios.get<PaperlessSearchResponse>(
@@ -44,7 +44,7 @@ export class PaperlessAPI {
                 {
                     headers,
                     params: {
-                        query: query,
+                        query: title,
                         page_size: limit,
                     },
                 }

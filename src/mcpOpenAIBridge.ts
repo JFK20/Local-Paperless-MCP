@@ -48,14 +48,14 @@ export class McpOpenAIBridge {
         this.setupMCPHandlers();
     }
 
-    public searchDocumentsSchema = z.object({
-        query: z.string().describe("Search query to find documents"),
+    public getDocumentsSchema = z.object({
+        title: z.string().describe("title of the documents to find"),
         limit: z
             .number()
             .optional()
             .default(10)
             .describe("Maximum number of documents to return"),
-    }) as z.ZodType<{ query: string; limit?: number }>;
+    }) as z.ZodType<{ title: string; limit?: number }>;
 
     public getDocumentContentSchema = z.object({
         documentId: z.number().optional().describe("ID of the document to get content from"),
@@ -70,15 +70,15 @@ export class McpOpenAIBridge {
             return {
                 tools: [
                     {
-                        name: "search_documents",
-                        description: "Search for documents in Paperless NGX",
+                        name: "get_documents",
+                        description: "find documents in Paperless NGX. IMPORTANT: You must provide a 'title' parameter.",
                         inputSchema: {
                             type: "object",
                             properties: {
-                                query: {
+                                title: {
                                     type: "string",
                                     description:
-                                        "Search query to find documents",
+                                        "title of the documents to find",
                                 },
                                 limit: {
                                     type: "number",
@@ -87,7 +87,7 @@ export class McpOpenAIBridge {
                                     default: 10,
                                 },
                             },
-                            required: ["query"],
+                            required: ["title"],
                         },
                     },
                 ] as Tool[],
@@ -105,9 +105,9 @@ export class McpOpenAIBridge {
             async (request: any) => {
                 let args;
                 switch (request.params.name) {
-                    case "search_documents":
-                        console.log("search documents");
-                        args = this.searchDocumentsSchema.parse(
+                    case "get_documents":
+                        console.log("get_documents");
+                        args = this.getDocumentsSchema.parse(
                             request.params.arguments
                         );
                         return await this.paperlessAPI.searchDocuments(args);

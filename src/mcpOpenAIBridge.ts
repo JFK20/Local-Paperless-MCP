@@ -90,29 +90,6 @@ export class McpOpenAIBridge {
                             required: ["query"],
                         },
                     },
-                    {
-                        name: "get_document_content",
-                        description:
-                            "Get the full text content of a specific document",
-                        inputSchema: {
-                            type: "object",
-                            properties: {
-                                documentId: {
-                                    type: "number",
-                                    description: "ID of the document to get content from",
-                                },
-                                documentTitle: {
-                                    type: "string",
-                                    description: "Title of the document to get content from",
-                                },
-                            },
-                            required: [],
-                            anyOf: [
-                                { required: ["documentId"] },
-                                { required: ["documentTitle"] }
-                            ]
-                        },
-                    },
                 ] as Tool[],
             };
         });
@@ -134,12 +111,6 @@ export class McpOpenAIBridge {
                             request.params.arguments
                         );
                         return await this.paperlessAPI.searchDocuments(args);
-                    case "get_document_content":
-                        console.log("get document content");
-                        args = this.getDocumentContentSchema.parse(
-                            request.params.arguments
-                        );
-                        return await this.paperlessAPI.getDocumentContentByIdOrTitle(args);
                     default:
                         throw new Error(`Unknown tool: ${request.params.name}`);
                 }

@@ -87,6 +87,11 @@ export class McpOpenAIBridge {
                     {
                         name: "list_tags",
                         description: "List all tags in Paperless NGX",
+                        inputSchema: {
+                            type: "object",
+                            properties: {},
+                            required: [],
+                        },
                     },
                 ] as Tool[],
             };

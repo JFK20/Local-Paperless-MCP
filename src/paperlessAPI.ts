@@ -42,11 +42,6 @@ export class PaperlessAPI {
         Archived File Name: ${doc.archived_file_name} \n  Owner: ${doc.owner} \n  Notes: ${doc.notes || "N/A"}`;
     }
 
-    //Helper Function to Format a Tag
-    public formatTag(tag: PaperlessTag) {
-        return `Tag ID: ${tag.id}, Name: ${tag.name}, Color: ${tag.color}, Document with this Tag: ${tag.document_count}`;
-    }
-
     public async searchDocuments(args: { title: string; limit?: number }) {
         try {
             const { title, limit = 10 } = args;
@@ -108,6 +103,11 @@ export class PaperlessAPI {
         } catch (error: any) {
             throw new Error(`Paperless search error: ${error.message}`);
         }
+    }
+
+    //Helper Function to Format a Tag
+    public formatTag(tag: PaperlessTag) {
+        return `Tag ID: ${tag.id}, Name: ${tag.name}, Color: ${tag.color}, Document with this Tag: ${tag.document_count}`;
     }
 
     public async listTags() {

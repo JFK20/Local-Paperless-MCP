@@ -34,6 +34,13 @@ export interface PaperlessDocument {
     mime_type: string;
 }
 
+export interface PaperlessTag {
+    id: number;
+    name: string;
+    color: string;
+    document_count: number;
+}
+
 export interface PaperlessSearchResponse {
     count: number;
     next: string | null;
@@ -44,5 +51,5 @@ export interface PaperlessSearchResponse {
 
 export interface DocumentSearchResult {
     total: number;
-    documents: Partial<PaperlessDocument>[];
+    documents: string[];
 }

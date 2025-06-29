@@ -57,13 +57,6 @@ export class McpOpenAIBridge {
             .describe("Maximum number of documents to return"),
     }) as z.ZodType<{ title: string; limit?: number }>;
 
-    public getDocumentContentSchema = z.object({
-        documentId: z.number().optional().describe("ID of the document to get content from"),
-        documentTitle: z.string().optional().describe("Title of the document to get content from"),
-    }).refine(data => data.documentId !== undefined || data.documentTitle !== undefined, {
-        message: "Either documentId or documentTitle must be provided"
-    });
-
     private setupMCPHandlers() {
         // List available tools
         this.server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -71,7 +64,8 @@ export class McpOpenAIBridge {
                 tools: [
                     {
                         name: "get_documents",
-                        description: "find documents in Paperless NGX. IMPORTANT: You must provide a 'title' parameter.",
+                        description:
+                            "find documents in Paperless NGX. IMPORTANT: You must provide a 'title' parameter.",
                         inputSchema: {
                             type: "object",
                             properties: {
@@ -90,14 +84,13 @@ export class McpOpenAIBridge {
                             required: ["title"],
                         },
                     },
+                    {
+                        name: "list_tags",
+                        description: "List all tags in Paperless NGX",
+                    },
                 ] as Tool[],
             };
         });
-
-        //Helper Function to Format a Document
-        function formatDocument(doc: PaperlessDocument) {
-            return `Title: ${doc.title} ID: ${doc.id} \n  Content: ${doc.content.substring(0, 300)}... \n  Tags: ${doc.tags.join(", ")} \n  Correspondent: ${doc.correspondent || "N/A"} \n`;
-        }
 
         // Handle tool calls
         this.server.setRequestHandler(
@@ -111,6 +104,10 @@ export class McpOpenAIBridge {
                             request.params.arguments
                         );
                         return await this.paperlessAPI.searchDocuments(args);
+                    case "list_tags":
+                        console.log("list_tags");
+                        const tags = await this.paperlessAPI.listTags();
+                        return tags;
                     default:
                         throw new Error(`Unknown tool: ${request.params.name}`);
                 }

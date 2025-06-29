@@ -4,7 +4,7 @@ import {
     ListToolsRequestSchema,
     Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { OllamaConfig, PaperlessDocument } from "./types.js";
+import { OllamaConfig } from "./types.js";
 import { PaperlessAPI } from "./paperlessAPI.js";
 import { testPaperlessConnection } from "./startTests.js";
 import "dotenv/config";
@@ -48,7 +48,7 @@ export class McpOpenAIBridge {
         this.setupMCPHandlers();
     }
 
-    public getDocumentsSchema = z.object({
+    public getDocumentsByTitleSchema = z.object({
         title: z.string().describe("title of the documents to find"),
         limit: z
             .number()
@@ -56,6 +56,15 @@ export class McpOpenAIBridge {
             .default(10)
             .describe("Maximum number of documents to return"),
     }) as z.ZodType<{ title: string; limit?: number }>;
+
+    public getDocumentsByTagSchema = z.object({
+        tag: z.string().describe("tag of the documents to find"),
+        limit: z
+            .number()
+            .optional()
+            .default(10)
+            .describe("Maximum number of documents to return"),
+    });
 
     private setupMCPHandlers() {
         // List available tools
@@ -93,6 +102,27 @@ export class McpOpenAIBridge {
                             required: [],
                         },
                     },
+                    {
+                        name: "get_documents_by_tag",
+                        description:
+                            "Search documents by tag in Paperless NGX. IMPORTANT: You must provide a 'tag' parameter.",
+                        inputSchema: {
+                            type: "object",
+                            properties: {
+                                tag: {
+                                    type: "string",
+                                    description: "tag of the documents to find",
+                                },
+                                limit: {
+                                    type: "number",
+                                    description:
+                                        "Maximum number of documents to return (default: 10)",
+                                    default: 10,
+                                },
+                            },
+                            required: ["tag"],
+                        },
+                    },
                 ] as Tool[],
             };
         });
@@ -105,7 +135,7 @@ export class McpOpenAIBridge {
                 switch (request.params.name) {
                     case "get_documents":
                         console.log("get_documents");
-                        args = this.getDocumentsSchema.parse(
+                        args = this.getDocumentsByTitleSchema.parse(
                             request.params.arguments
                         );
                         return await this.paperlessAPI.searchDocuments(args);
@@ -113,6 +143,14 @@ export class McpOpenAIBridge {
                         console.log("list_tags");
                         const tags = await this.paperlessAPI.listTags();
                         return tags;
+                    case "get_documents_by_tag":
+                        console.log("search_documents_by_tag");
+                        args = this.getDocumentsByTagSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.searchDocumentsByTag(
+                            args
+                        );
                     default:
                         throw new Error(`Unknown tool: ${request.params.name}`);
                 }

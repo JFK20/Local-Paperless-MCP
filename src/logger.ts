@@ -1,21 +1,19 @@
 export class Logger {
     private static instance: Logger;
-    private prefix: string;
 
-    constructor(prefix: string = 'MCP-SERVER') {
-        this.prefix = prefix;
+    constructor() {
     }
 
-    public static getInstance(prefix?: string): Logger {
+    public static getInstance(): Logger {
         if (!Logger.instance) {
-            Logger.instance = new Logger(prefix);
+            Logger.instance = new Logger();
         }
         return Logger.instance;
     }
 
     public info(message: string, data?: any) {
         const timestamp = new Date().toISOString();
-        const logMessage = `[${timestamp}] [${this.prefix}] INFO: ${message}`;
+        const logMessage = `[${timestamp}] INFO: ${message}`;
         
         if (data) {
             process.stderr.write(`${logMessage} ${JSON.stringify(data)}\n`);
@@ -26,7 +24,7 @@ export class Logger {
 
     public error(message: string, error?: any) {
         const timestamp = new Date().toISOString();
-        const logMessage = `[${timestamp}] [${this.prefix}] ERROR: ${message}`;
+        const logMessage = `[${timestamp}] ERROR: ${message}`;
         
         if (error) {
             process.stderr.write(`${logMessage} ${error.stack || error}\n`);
@@ -38,7 +36,7 @@ export class Logger {
     public debug(message: string, data?: any) {
         if (process.env.NODE_ENV === 'development') {
             const timestamp = new Date().toISOString();
-            const logMessage = `[${timestamp}] [${this.prefix}] DEBUG: ${message}`;
+            const logMessage = `[${timestamp}] DEBUG: ${message}`;
             
             if (data) {
                 process.stderr.write(`${logMessage} ${JSON.stringify(data, null, 2)}\n`);
@@ -50,7 +48,7 @@ export class Logger {
 
     public warn(message: string, data?: any) {
         const timestamp = new Date().toISOString();
-        const logMessage = `[${timestamp}] [${this.prefix}] WARN: ${message}`;
+        const logMessage = `[${timestamp}] WARN: ${message}`;
         
         if (data) {
             process.stderr.write(`${logMessage} ${JSON.stringify(data)}\n`);

@@ -2,7 +2,7 @@ import { McpOpenAIBridge } from "./mcpOpenAIBridge.js";
 import { Logger } from "./logger.js";
 import "dotenv/config";
 
-const logger = Logger.getInstance('MAIN');
+const logger = Logger.getInstance();
 
 // Start the bridge
 logger.info('Starting MCP OpenAI Bridge...');

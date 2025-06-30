@@ -21,7 +21,7 @@ export class McpOpenAIBridge {
     constructor() {
         this.port = parseInt(process.env.BRIDGE_PORT || "3001");
         this.paperlessAPI = new PaperlessAPI();
-        this.logger = Logger.getInstance('MCP-BRIDGE');
+        this.logger = Logger.getInstance();
 
         this.server = new Server(
             {

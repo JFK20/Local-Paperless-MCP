@@ -24,7 +24,7 @@ export class PaperlessAPI {
             );
         }
 
-        this.logger = Logger.getInstance('PAPERLESS-API');
+        this.logger = Logger.getInstance();
     }
 
     public getPaperlessHeaders() {
@@ -184,8 +184,6 @@ export class PaperlessAPI {
                     headers,
                 }
             );
-
-            this.logger.debug(JSON.stringify(response.data.results))
 
             let correspondent = response.data.results.map(
                 (correspondent: PaperlessCorrespondent) => ({

@@ -1,6 +1,7 @@
 import {
     DocumentSearchResult,
-    PaperlessConfig, PaperlessCorrespondent,
+    PaperlessConfig,
+    PaperlessCorrespondent,
     PaperlessDocument,
     PaperlessSearchResponse,
     PaperlessTag,
@@ -207,6 +208,31 @@ export class PaperlessAPI {
             };
         } catch (error: any) {
             throw new Error(`List Correspondent error: ${error.message}`);
+        }
+    }
+
+    public async searchDocumentsByCorrespondent(args: {
+        correspondent: string;
+        limit?: number;
+    }) {
+        try {
+            const { correspondent, limit = 10 } = args;
+            const headers = this.getPaperlessHeaders();
+
+            const response = await axios.get<PaperlessSearchResponse>(
+                `${this.paperlessConfig.baseUrl}/api/documents/`,
+                {
+                    headers,
+                    params: {
+                        correspondent__name__icontains: correspondent,
+                        page_size: limit,
+                    },
+                }
+            );
+
+            return this.parseDocumentData(response.data);
+        } catch (error: any) {
+            throw new Error(`Paperless search error: ${error.message}`);
         }
     }
 }

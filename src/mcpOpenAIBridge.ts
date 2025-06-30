@@ -54,6 +54,17 @@ export class McpOpenAIBridge {
             .describe("Maximum number of documents to return"),
     });
 
+    public getDocumentsByCorrespondentSchema = z.object({
+        correspondent: z
+            .string()
+            .describe("correspondent of the documents to find"),
+        limit: z
+            .number()
+            .optional()
+            .default(10)
+            .describe("Maximum number of documents to return"),
+    });
+
     private setupMCPHandlers() {
         // List available tools
         this.server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -83,7 +94,7 @@ export class McpOpenAIBridge {
                     },
                     {
                         name: "list_tags",
-                        description: "List all tags in Paperless NGX",
+                        description: "Lists all tags in Paperless NGX",
                         inputSchema: {
                             type: "object",
                             properties: {},
@@ -112,15 +123,37 @@ export class McpOpenAIBridge {
                         },
                     },
                     {
-                        name: "get_correspondent",
+                        name: "list_correspondent",
                         description:
-                            "Get a list of all correspondents in Paperless NGX",
+                            "Lists all correspondents in Paperless NGX",
                         inputSchema: {
                             type: "object",
                             properties: {},
                             required: [],
-                        }
-                    }
+                        },
+                    },
+                    {
+                        name: "get_document_by_correspondent",
+                        description:
+                            "Get documents by correspondent in Paperless NGX. IMPORTANT: You must provide a 'correspondent' parameter.",
+                        inputSchema: {
+                            type: "object",
+                            properties: {
+                                correspondent: {
+                                    type: "string",
+                                    description:
+                                        "correspondent of the documents to find",
+                                },
+                                limit: {
+                                    type: "number",
+                                    description:
+                                        "Maximum number of documents to return (default: 10)",
+                                    default: 10,
+                                },
+                            },
+                            required: ["correspondent"],
+                        },
+                    },
                 ] as Tool[],
             };
         });
@@ -129,7 +162,9 @@ export class McpOpenAIBridge {
         this.server.setRequestHandler(
             CallToolRequestSchema,
             async (request: any) => {
-                this.logger.info(`Tool called: ${request.params.name}`, { arguments: request.params.arguments });
+                this.logger.info(`Tool called: ${request.params.name}`, {
+                    arguments: request.params.arguments,
+                });
 
                 let args;
                 switch (request.params.name) {
@@ -148,10 +183,19 @@ export class McpOpenAIBridge {
                         return await this.paperlessAPI.searchDocumentsByTag(
                             args
                         );
-                    case "get_correspondent":
+                    case "list_correspondent":
                         return await this.paperlessAPI.listCorrespondents();
+                    case "get_document_by_correspondent":
+                        args = this.getDocumentsByCorrespondentSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.searchDocumentsByCorrespondent(
+                            args
+                        );
                     default:
-                        this.logger.error(`Unknown tool: ${request.params.name}`);
+                        this.logger.error(
+                            `Unknown tool: ${request.params.name}`
+                        );
                         throw new Error(`Unknown tool: ${request.params.name}`);
                 }
             }
@@ -159,7 +203,7 @@ export class McpOpenAIBridge {
     }
 
     async start() {
-        this.logger.info('Testing Paperless connection...');
+        this.logger.info("Testing Paperless connection...");
 
         // Test connections first
         const paperlessConnected = await testPaperlessConnection(
@@ -167,7 +211,9 @@ export class McpOpenAIBridge {
         );
 
         if (!paperlessConnected) {
-            this.logger.error("Paperless NGX is not accessible - document features will not work");
+            this.logger.error(
+                "Paperless NGX is not accessible - document features will not work"
+            );
             process.exit(1);
         }
 

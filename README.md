@@ -82,11 +82,19 @@ Searches documents in Paperless-NGX based on tag name.
 - `tag` (required): Name of the tag to search for
 - `limit` (optional): Maximum number of documents to return (default: 10)
 
-#### `get_correspondent`
+#### `list_correspondent`
 Retrieves a list of all correspondents in Paperless-NGX.
 
 **Parameters:**
 - No parameters required
+
+
+#### `get_document_by_correspondent`
+Searches documents in Paperless-NGX based on correspondent name.
+
+**Parameters:**
+- `correspondent` (required): Name of the correspondent to search for
+- `limit` (optional): Maximum number of documents to return (default: 10)
 
 ### Integration with AI Models
 

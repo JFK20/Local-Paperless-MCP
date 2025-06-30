@@ -68,16 +68,25 @@ Searches documents in Paperless-NGX based on title.
 - `title` (required): Title of the documents to search for
 - `limit` (optional): Maximum number of documents to return (default: 10)
 
-**Example:**
-```json
-{
-  "name": "get_documents",
-  "arguments": {
-    "title": "Invoice",
-    "limit": 5
-  }
-}
-```
+
+#### `list_tags`
+Lists all available tags in Paperless-NGX.
+
+**Parameters:**
+- No parameters required
+
+#### `get_documents_by_tag`
+Searches documents in Paperless-NGX based on tag name.
+
+**Parameters:**
+- `tag` (required): Name of the tag to search for
+- `limit` (optional): Maximum number of documents to return (default: 10)
+
+#### `get_correspondent`
+Retrieves a list of all correspondents in Paperless-NGX.
+
+**Parameters:**
+- No parameters required
 
 ### Integration with AI Models
 

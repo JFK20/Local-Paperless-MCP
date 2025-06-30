@@ -1,6 +1,6 @@
 import {
     DocumentSearchResult,
-    PaperlessConfig,
+    PaperlessConfig, PaperlessCorrespondent,
     PaperlessDocument,
     PaperlessSearchResponse,
     PaperlessTag,
@@ -163,6 +163,46 @@ export class PaperlessAPI {
             return this.parseDocumentData(response.data);
         } catch (error: any) {
             throw new Error(`Paperless search error: ${error.message}`);
+        }
+    }
+
+    //Helper Function to Format a Tag
+    public formatCorrespondent(correspondent: PaperlessCorrespondent) {
+        return `Tag ID: ${correspondent.id}, Name: ${correspondent.name}, Document with this Tag: ${correspondent.document_count}`;
+    }
+
+    public async listCorrespondents() {
+        try {
+            const headers = this.getPaperlessHeaders();
+            const response = await axios.get(
+                `${this.paperlessConfig.baseUrl}/api/correspondents/`,
+                {
+                    headers,
+                }
+            );
+
+            const correspondent = response.data.results.map(
+                (correspondent: PaperlessCorrespondent) => ({
+                    id: correspondent.id,
+                    name: correspondent.name,
+                    documentCount: correspondent.document_count,
+                })
+            );
+
+            let formattedCorrespondents = correspondent.map(
+                this.formatCorrespondent
+            );
+
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: JSON.stringify(formattedCorrespondents, null, 2),
+                    },
+                ],
+            };
+        } catch (error: any) {
+            throw new Error(`List Correspondent error: ${error.message}`);
         }
     }
 }

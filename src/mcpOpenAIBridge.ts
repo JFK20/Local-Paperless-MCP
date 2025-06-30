@@ -4,7 +4,6 @@ import {
     ListToolsRequestSchema,
     Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { OllamaConfig } from "./types.js";
 import { PaperlessAPI } from "./paperlessAPI.js";
 import { testPaperlessConnection } from "./startTests.js";
 import "dotenv/config";
@@ -14,24 +13,12 @@ import z from "zod";
 
 export class McpOpenAIBridge {
     private server: Server;
-    private ollamaConfig: OllamaConfig;
     private paperlessAPI: PaperlessAPI;
     private port: number;
 
     constructor() {
         this.port = parseInt(process.env.BRIDGE_PORT || "3001");
         this.paperlessAPI = new PaperlessAPI();
-
-        this.ollamaConfig = {
-            baseUrl: process.env.OLLAMA_BASE_URL,
-            model: process.env.OLLAMA_MODEL,
-        };
-
-        if (!this.ollamaConfig.baseUrl || !this.ollamaConfig.model) {
-            throw new Error(
-                "OLLAMA_BASE_URL and OLLAMA_MODEL environment variables must be set"
-            );
-        }
 
         this.server = new Server(
             {
@@ -123,6 +110,16 @@ export class McpOpenAIBridge {
                             required: ["tag"],
                         },
                     },
+                    {
+                        name: "get_correspondent",
+                        description:
+                            "Get a list of all correspondents in Paperless NGX",
+                        inputSchema: {
+                            type: "object",
+                            properties: {},
+                            required: [],
+                        }
+                    }
                 ] as Tool[],
             };
         });
@@ -151,6 +148,9 @@ export class McpOpenAIBridge {
                         return await this.paperlessAPI.searchDocumentsByTag(
                             args
                         );
+                    case "get_correspondent":
+                        console.log("get_correspondent");
+                        return await this.paperlessAPI.listCorrespondents();
                     default:
                         throw new Error(`Unknown tool: ${request.params.name}`);
                 }

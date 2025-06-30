@@ -1,8 +1,3 @@
-export interface OllamaConfig {
-    baseUrl: string;
-    model: string;
-}
-
 export interface PaperlessConfig {
     baseUrl: string;
     token: string;
@@ -38,6 +33,12 @@ export interface PaperlessTag {
     id: number;
     name: string;
     color: string;
+    document_count: number;
+}
+
+export interface PaperlessCorrespondent {
+    id: number;
+    name: string;
     document_count: number;
 }
 

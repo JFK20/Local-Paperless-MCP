@@ -6,6 +6,7 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import { PaperlessAPI } from "./paperlessAPI.js";
 import { testPaperlessConnection } from "./startTests.js";
+import { Logger } from "./logger.js";
 import "dotenv/config";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 const isDevMode = process.env.NODE_ENV === "development";
@@ -15,10 +16,12 @@ export class McpOpenAIBridge {
     private server: Server;
     private paperlessAPI: PaperlessAPI;
     private port: number;
+    private logger: Logger;
 
     constructor() {
         this.port = parseInt(process.env.BRIDGE_PORT || "3001");
         this.paperlessAPI = new PaperlessAPI();
+        this.logger = Logger.getInstance('MCP-BRIDGE');
 
         this.server = new Server(
             {
@@ -56,6 +59,7 @@ export class McpOpenAIBridge {
     private setupMCPHandlers() {
         // List available tools
         this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+            this.logger.debug('Listing available tools');
             return {
                 tools: [
                     {
@@ -128,20 +132,19 @@ export class McpOpenAIBridge {
         this.server.setRequestHandler(
             CallToolRequestSchema,
             async (request: any) => {
+                this.logger.info(`Tool called: ${request.params.name}`, { arguments: request.params.arguments });
+
                 let args;
                 switch (request.params.name) {
                     case "get_documents":
-                        console.log("get_documents");
                         args = this.getDocumentsByTitleSchema.parse(
                             request.params.arguments
                         );
                         return await this.paperlessAPI.searchDocuments(args);
                     case "list_tags":
-                        console.log("list_tags");
                         const tags = await this.paperlessAPI.listTags();
                         return tags;
                     case "get_documents_by_tag":
-                        console.log("search_documents_by_tag");
                         args = this.getDocumentsByTagSchema.parse(
                             request.params.arguments
                         );
@@ -149,9 +152,9 @@ export class McpOpenAIBridge {
                             args
                         );
                     case "get_correspondent":
-                        console.log("get_correspondent");
                         return await this.paperlessAPI.listCorrespondents();
                     default:
+                        this.logger.error(`Unknown tool: ${request.params.name}`);
                         throw new Error(`Unknown tool: ${request.params.name}`);
                 }
             }
@@ -159,19 +162,21 @@ export class McpOpenAIBridge {
     }
 
     async start() {
+        this.logger.info('Testing Paperless connection...');
+
         // Test connections first
         const paperlessConnected = await testPaperlessConnection(
             this.paperlessAPI
         );
 
         if (!paperlessConnected) {
-            console.error(
-                "Paperless NGX is not accessible - document features will not work"
-            );
+            this.logger.error("Paperless NGX is not accessible - document features will not work");
             process.exit(1);
         }
-        console.log("Starting");
+
+        this.logger.info("Starting MCP server transport...");
         const transport = new StdioServerTransport();
         await this.server.connect(transport);
+        this.logger.info("MCP server connected successfully");
     }
 }

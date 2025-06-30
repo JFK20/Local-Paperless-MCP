@@ -6,9 +6,11 @@ import {
     PaperlessTag,
 } from "./types.js";
 import axios from "axios";
+import { Logger } from "./logger.js";
 
 export class PaperlessAPI {
-    paperlessConfig: PaperlessConfig;
+    public paperlessConfig: PaperlessConfig;
+    private logger: Logger;
 
     constructor() {
         this.paperlessConfig = {
@@ -21,6 +23,8 @@ export class PaperlessAPI {
                 "Paperless configuration is missing. Please set PAPERLESS_BASE_URL and PAPERLESS_TOKEN environment variables."
             );
         }
+
+        this.logger = Logger.getInstance('PAPERLESS-API');
     }
 
     public getPaperlessHeaders() {
@@ -122,11 +126,11 @@ export class PaperlessAPI {
                 }
             );
 
-            const tags = response.data.results.map((tag: PaperlessTag) => ({
+            let tags = response.data.results.map((tag: PaperlessTag) => ({
                 id: tag.id,
                 name: tag.name,
                 color: tag.color,
-                documentCount: tag.document_count,
+                document_count: tag.document_count,
             }));
 
             let formattedTags = tags.map(this.formatTag);
@@ -181,11 +185,13 @@ export class PaperlessAPI {
                 }
             );
 
-            const correspondent = response.data.results.map(
+            this.logger.debug(JSON.stringify(response.data.results))
+
+            let correspondent = response.data.results.map(
                 (correspondent: PaperlessCorrespondent) => ({
                     id: correspondent.id,
                     name: correspondent.name,
-                    documentCount: correspondent.document_count,
+                    document_count: correspondent.document_count,
                 })
             );
 

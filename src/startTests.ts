@@ -1,7 +1,6 @@
 import axios from "axios";
 import { PaperlessAPI } from "./paperlessAPI.js";
 
-
 /**
  * Tests connection to Paperless NGX API
  * @param paperlessAPI Paperless API instance

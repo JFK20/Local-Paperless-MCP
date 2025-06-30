@@ -16,26 +16,20 @@ A Model Context Protocol (MCP) Server that provides a bridge between Paperless-N
 
 ## Installation With Docker
 
-1. Clone the repository:
+### 1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd Local-Paperless-MCP
 ```
 
-2. Configure environment variables:
+### 2. Configure environment variables:
 ```bash
-cp .env.dev docker.env
-# Edit docker.env with your settings
+cp .env.dev .env
 ```
 
-3. Start with Docker Compose:
-```bash
-docker-compose up --build
-```
+#### Configuration
 
-## Configuration
-
-Create a `docker.env` file for Docker with the following variables:
+edit the `.env` file for Docker with the following variables:
 
 ```env
 # Server Configuration
@@ -45,11 +39,14 @@ NODE_ENV=development
 # Paperless-NGX Configuration
 PAPERLESS_BASE_URL=http://your-paperless-url:port
 PAPERLESS_TOKEN=your-paperless-api-token
-
-# Ollama Configuration (optional)
-OLLAMA_BASE_URL=http://localhost:11434
-OLLAMA_MODEL=your-preferred-model
 ```
+
+### 3. Start with Docker Compose:
+```bash
+docker-compose up --build
+```
+
+
 
 ### Creating Paperless-NGX API Token
 

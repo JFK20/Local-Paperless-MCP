@@ -16,5 +16,5 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY --from=node-base /app .
-EXPOSE 3001
-CMD ["uvx", "mcpo", "--host", "0.0.0.0", "--port", "3001", "--", "node", "dist/index.js"]
+EXPOSE ${BRIDGE_PORT}
+CMD ["sh", "-c", "uvx mcpo --host 0.0.0.0 --port ${BRIDGE_PORT:-3001} -- node dist/index.js"]

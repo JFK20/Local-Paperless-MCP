@@ -2,8 +2,9 @@ services:
   paperless-mcp:
     build: .
     ports:
-      - "3001:3001"
+      - "${BRIDGE_PORT}:${BRIDGE_PORT}"
     environment:
       NODE_ENV: development
+      BRIDGE_PORT: ${BRIDGE_PORT}
     volumes:
-      - ./docker.env:/app/.env
+      - ./.env:/app/.env

@@ -15,11 +15,9 @@ import z from "zod";
 export class McpOpenAIBridge {
     private server: Server;
     private paperlessAPI: PaperlessAPI;
-    private port: number;
     private logger: Logger;
 
     constructor() {
-        this.port = parseInt(process.env.BRIDGE_PORT || "3001");
         this.paperlessAPI = new PaperlessAPI();
         this.logger = Logger.getInstance();
 
@@ -59,7 +57,6 @@ export class McpOpenAIBridge {
     private setupMCPHandlers() {
         // List available tools
         this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-            this.logger.debug('Listing available tools');
             return {
                 tools: [
                     {

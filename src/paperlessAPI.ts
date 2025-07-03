@@ -90,38 +90,27 @@ export class PaperlessAPI {
         };
     }
 
-    public async searchDocuments(args: { title: string; limit?: number }) {
-        try {
-            const { title, limit = 10 } = args;
-            const headers = this.getPaperlessHeaders();
-
-            const response = await axios.get<PaperlessSearchResponse>(
-                `${this.paperlessConfig.baseUrl}/api/documents/`,
-                {
-                    headers,
-                    params: {
-                        query: title,
-                        page_size: limit,
-                    },
-                }
-            );
-
-            return this.parseDocumentData(response.data);
-        } catch (error: any) {
-            throw new Error(`Paperless search error: ${error.message}`);
-        }
-    }
-
     public async getDocumentAllParams(args: {
         id?: number;
         content__icontains?: string;
         title?: string;
         tag?: string;
         correspondent?: string;
+        created__date__gte?: string;
+        created__date__lte?: string;
         limit?: number;
     }) {
         try {
-            const { id, content__icontains, title, tag, correspondent, limit = 10 } = args;
+            const {
+                id,
+                content__icontains,
+                title,
+                tag,
+                correspondent,
+                created__date__gte,
+                created__date__lte,
+                limit = 10,
+            } = args;
             const headers = this.getPaperlessHeaders();
 
             // Build params object based on provided arguments
@@ -148,6 +137,14 @@ export class PaperlessAPI {
 
             if (correspondent) {
                 params.correspondent__name__icontains = correspondent;
+            }
+
+            if (created__date__gte) {
+                params.created__date__gte = created__date__gte;
+            }
+
+            if (created__date__lte) {
+                params.created__date__lte = created__date__lte;
             }
 
             const response = await axios.get<PaperlessSearchResponse>(
@@ -201,28 +198,6 @@ export class PaperlessAPI {
         }
     }
 
-    public async searchDocumentsByTag(args: { tag: string; limit?: number }) {
-        try {
-            const { tag, limit = 10 } = args;
-            const headers = this.getPaperlessHeaders();
-
-            const response = await axios.get<PaperlessSearchResponse>(
-                `${this.paperlessConfig.baseUrl}/api/documents/`,
-                {
-                    headers,
-                    params: {
-                        tags__name__icontains: tag,
-                        page_size: limit,
-                    },
-                }
-            );
-
-            return this.parseDocumentData(response.data);
-        } catch (error: any) {
-            throw new Error(`Paperless search error: ${error.message}`);
-        }
-    }
-
     //Helper Function to Format a Tag
     public formatCorrespondent(correspondent: PaperlessCorrespondent) {
         return `Tag ID: ${correspondent.id}, Name: ${correspondent.name}, Document with this Tag: ${correspondent.document_count}`;
@@ -260,31 +235,6 @@ export class PaperlessAPI {
             };
         } catch (error: any) {
             throw new Error(`List Correspondent error: ${error.message}`);
-        }
-    }
-
-    public async searchDocumentsByCorrespondent(args: {
-        correspondent: string;
-        limit?: number;
-    }) {
-        try {
-            const { correspondent, limit = 10 } = args;
-            const headers = this.getPaperlessHeaders();
-
-            const response = await axios.get<PaperlessSearchResponse>(
-                `${this.paperlessConfig.baseUrl}/api/documents/`,
-                {
-                    headers,
-                    params: {
-                        correspondent__name__icontains: correspondent,
-                        page_size: limit,
-                    },
-                }
-            );
-
-            return this.parseDocumentData(response.data);
-        } catch (error: any) {
-            throw new Error(`Paperless search error: ${error.message}`);
         }
     }
 }

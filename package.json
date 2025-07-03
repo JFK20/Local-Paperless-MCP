@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
+    "ts-compile-check": "tsc --noEmit",
     "start": "tsc && node dist/index.js",
     "format": "npx prettier ./src --write"
   },

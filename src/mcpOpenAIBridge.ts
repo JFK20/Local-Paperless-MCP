@@ -36,37 +36,68 @@ export class McpOpenAIBridge {
         this.setupMCPHandlers();
     }
 
-    public getDocumentSchema = z.object({
-        id: z
-            .number()
-            .optional()
-            .describe("ID of the document to retrieve"),
-        content__icontains: z
-            .string()
-            .optional()
-            .describe("Content to search for in the document"),
-        title: z.string().optional().describe("title of the documents to find"),
-        tag: z.string().optional().describe("tag of the documents to find"),
-        correspondent: z
-            .string()
-            .optional()
-            .describe("correspondent of the documents to find"),
-        limit: z
-            .number()
-            .optional()
-            .default(10)
-            .describe("Maximum number of documents to return"),
-    }).refine((data) => {
-        const hasId = data.id !== undefined;
-        const hasContent = data.content__icontains !== undefined;
-        const hasTitle = data.title !== undefined;
-        const hasTag = data.tag !== undefined;
-        const hasCorrespondent = data.correspondent !== undefined;
+    public getDocumentSchema = z
+        .object({
+            id: z
+                .number()
+                .optional()
+                .describe("ID of the document to retrieve"),
+            content__icontains: z
+                .string()
+                .optional()
+                .describe("Content to search for in the document"),
+            title: z
+                .string()
+                .optional()
+                .describe("title of the documents to find"),
+            tag: z.string().optional().describe("tag of the documents to find"),
+            correspondent: z
+                .string()
+                .optional()
+                .describe("correspondent of the documents to find"),
+            created__date__gte: z
+                .string()
+                .optional()
+                .describe(
+                    "creation date greater than or equal to the specified date"
+                ),
+            created__date__lte: z
+                .string()
+                .optional()
+                .describe(
+                    "creation date lesser than or equal to the specified date"
+                ),
+            limit: z
+                .number()
+                .optional()
+                .default(10)
+                .describe("Maximum number of documents to return"),
+        })
+        .refine(
+            (data) => {
+                const hasId = data.id !== undefined;
+                const hasContent = data.content__icontains !== undefined;
+                const hasTitle = data.title !== undefined;
+                const hasTag = data.tag !== undefined;
+                const hasCorrespondent = data.correspondent !== undefined;
+                const hasCreatedDateGte = data.created__date__gte !== undefined;
+                const hasCreatedDateLte = data.created__date__lte !== undefined;
 
-        return hasId || hasContent || hasTitle || hasTag || hasCorrespondent;
-    }, {
-        message: "At least one parameter (id, content__icontains, title, tag, or correspondent) must be provided",
-    })
+                return (
+                    hasId ||
+                    hasContent ||
+                    hasTitle ||
+                    hasTag ||
+                    hasCorrespondent ||
+                    hasCreatedDateGte ||
+                    hasCreatedDateLte
+                );
+            },
+            {
+                message:
+                    "At least one parameter (id, content__icontains, title, tag, correspondent, created__date__gte, created__date__lte) must be provided",
+            }
+        );
 
     private setupMCPHandlers() {
         // List available tools
@@ -100,7 +131,8 @@ export class McpOpenAIBridge {
                             properties: {
                                 id: {
                                     type: "number",
-                                    description: "ID of the document to retrieve",
+                                    description:
+                                        "ID of the document to retrieve",
                                 },
                                 content__icontains: {
                                     type: "string",
@@ -114,13 +146,24 @@ export class McpOpenAIBridge {
                                 },
                                 tag: {
                                     type: "string",
-                                    description:
-                                        "Tag of the documents to find",
+                                    description: "Tag of the documents to find",
                                 },
                                 correspondent: {
                                     type: "string",
                                     description:
                                         "Correspondent of the documents to find",
+                                },
+                                created__date__gte: {
+                                    type: "string",
+                                    format: "date",
+                                    description:
+                                        "creation date greater than or equal to the specified date",
+                                },
+                                created__date__lte: {
+                                    type: "string",
+                                    format: "date",
+                                    description:
+                                        "creation date lesser than or equal to the specified date",
                                 },
                                 limit: {
                                     type: "number",
@@ -131,7 +174,7 @@ export class McpOpenAIBridge {
                             },
                             required: [],
                         },
-                    }
+                    },
                 ] as Tool[],
             };
         });
@@ -155,7 +198,9 @@ export class McpOpenAIBridge {
                         args = this.getDocumentSchema.parse(
                             request.params.arguments
                         );
-                        return await this.paperlessAPI.getDocumentAllParams(args);
+                        return await this.paperlessAPI.getDocumentAllParams(
+                            args
+                        );
                     default:
                         this.logger.error(
                             `Unknown tool: ${request.params.name}`

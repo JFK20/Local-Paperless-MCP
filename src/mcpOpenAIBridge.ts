@@ -36,35 +36,6 @@ export class McpOpenAIBridge {
         this.setupMCPHandlers();
     }
 
-    public getDocumentsByTitleSchema = z.object({
-        title: z.string().describe("title of the documents to find"),
-        limit: z
-            .number()
-            .optional()
-            .default(10)
-            .describe("Maximum number of documents to return"),
-    }) as z.ZodType<{ title: string; limit?: number }>;
-
-    public getDocumentsByTagSchema = z.object({
-        tag: z.string().describe("tag of the documents to find"),
-        limit: z
-            .number()
-            .optional()
-            .default(10)
-            .describe("Maximum number of documents to return"),
-    });
-
-    public getDocumentsByCorrespondentSchema = z.object({
-        correspondent: z
-            .string()
-            .describe("correspondent of the documents to find"),
-        limit: z
-            .number()
-            .optional()
-            .default(10)
-            .describe("Maximum number of documents to return"),
-    });
-
     public getDocumentSchema = z.object({
         id: z
             .number()
@@ -103,55 +74,12 @@ export class McpOpenAIBridge {
             return {
                 tools: [
                     {
-                        name: "get_documents_by_title",
-                        description:
-                            "find documents in Paperless NGX. IMPORTANT: You must provide a 'title' parameter.",
-                        inputSchema: {
-                            type: "object",
-                            properties: {
-                                title: {
-                                    type: "string",
-                                    description:
-                                        "title of the documents to find",
-                                },
-                                limit: {
-                                    type: "number",
-                                    description:
-                                        "Maximum number of documents to return (default: 10)",
-                                    default: 10,
-                                },
-                            },
-                            required: ["title"],
-                        },
-                    },
-                    {
                         name: "list_tags",
                         description: "Lists all tags in Paperless NGX",
                         inputSchema: {
                             type: "object",
                             properties: {},
                             required: [],
-                        },
-                    },
-                    {
-                        name: "get_documents_by_tag",
-                        description:
-                            "Search documents by tag in Paperless NGX. IMPORTANT: You must provide a 'tag' parameter.",
-                        inputSchema: {
-                            type: "object",
-                            properties: {
-                                tag: {
-                                    type: "string",
-                                    description: "tag of the documents to find",
-                                },
-                                limit: {
-                                    type: "number",
-                                    description:
-                                        "Maximum number of documents to return (default: 10)",
-                                    default: 10,
-                                },
-                            },
-                            required: ["tag"],
                         },
                     },
                     {
@@ -165,31 +93,44 @@ export class McpOpenAIBridge {
                         },
                     },
                     {
-                        name: "get_document_by_correspondent",
-                        description:
-                            "Get documents by correspondent in Paperless NGX. IMPORTANT: You must provide a 'correspondent' parameter.",
+                        name: "get_document",
+                        description: "Gets a document in Paperless NGX.",
                         inputSchema: {
                             type: "object",
                             properties: {
+                                id: {
+                                    type: "number",
+                                    description: "ID of the document to retrieve",
+                                },
+                                content__icontains: {
+                                    type: "string",
+                                    description:
+                                        "Content to search for in the document",
+                                },
+                                title: {
+                                    type: "string",
+                                    description:
+                                        "Title of the documents to find",
+                                },
+                                tag: {
+                                    type: "string",
+                                    description:
+                                        "Tag of the documents to find",
+                                },
                                 correspondent: {
                                     type: "string",
                                     description:
-                                        "correspondent of the documents to find",
+                                        "Correspondent of the documents to find",
                                 },
                                 limit: {
                                     type: "number",
-                                    description:
-                                        "Maximum number of documents to return (default: 10)",
                                     default: 10,
+                                    description:
+                                        "Maximum number of documents to return",
                                 },
                             },
-                            required: ["correspondent"],
+                            required: [],
                         },
-                    },
-                    {
-                        name: "get_document",
-                        description: "Gets a document in Paperless NGX.",
-                        inputSchema: this.getDocumentSchema
                     }
                 ] as Tool[],
             };
@@ -205,30 +146,11 @@ export class McpOpenAIBridge {
 
                 let args;
                 switch (request.params.name) {
-                    case "get_documents_by_title":
-                        args = this.getDocumentsByTitleSchema.parse(
-                            request.params.arguments
-                        );
-                        return await this.paperlessAPI.searchDocuments(args);
                     case "list_tags":
                         const tags = await this.paperlessAPI.listTags();
                         return tags;
-                    case "get_documents_by_tag":
-                        args = this.getDocumentsByTagSchema.parse(
-                            request.params.arguments
-                        );
-                        return await this.paperlessAPI.searchDocumentsByTag(
-                            args
-                        );
                     case "list_correspondent":
                         return await this.paperlessAPI.listCorrespondents();
-                    case "get_document_by_correspondent":
-                        args = this.getDocumentsByCorrespondentSchema.parse(
-                            request.params.arguments
-                        );
-                        return await this.paperlessAPI.searchDocumentsByCorrespondent(
-                            args
-                        );
                     case "get_document":
                         args = this.getDocumentSchema.parse(
                             request.params.arguments

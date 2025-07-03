@@ -1,0 +1,47 @@
+name: Code Quality checks
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+        cache-dependency-path: package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run Prettier
+      run: npm run format
+
+    - name: Prettify code
+      run: git add .
+
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: Prettified code
+        branch: ${{ github.head_ref }}
+
+    - name: Build TypeScript
+      run: npm run ts-compile-check
+

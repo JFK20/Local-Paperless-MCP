@@ -112,6 +112,58 @@ export class PaperlessAPI {
         }
     }
 
+    public async getDocumentAllParams(args: {
+        id?: number;
+        content__icontains?: string;
+        title?: string;
+        tag?: string;
+        correspondent?: string;
+        limit?: number;
+    }) {
+        try {
+            const { id, content__icontains, title, tag, correspondent, limit = 10 } = args;
+            const headers = this.getPaperlessHeaders();
+
+            // Build params object based on provided arguments
+            const params: any = {
+                page_size: limit,
+            };
+
+            // Add specific parameter mappings based on what's provided
+            if (id !== undefined) {
+                params.id = id;
+            }
+
+            if (content__icontains) {
+                params.content__icontains = content__icontains;
+            }
+
+            if (title) {
+                params.title__icontains = title;
+            }
+
+            if (tag) {
+                params.tags__name__icontains = tag;
+            }
+
+            if (correspondent) {
+                params.correspondent__name__icontains = correspondent;
+            }
+
+            const response = await axios.get<PaperlessSearchResponse>(
+                `${this.paperlessConfig.baseUrl}/api/documents/`,
+                {
+                    headers,
+                    params: params,
+                }
+            );
+
+            return this.parseDocumentData(response.data);
+        } catch (error: any) {
+            throw new Error(`Get document error: ${error.message}`);
+        }
+    }
+
     //Helper Function to Format a Tag
     public formatTag(tag: PaperlessTag) {
         return `Tag ID: ${tag.id}, Name: ${tag.name}, Color: ${tag.color}, Document with this Tag: ${tag.document_count}`;

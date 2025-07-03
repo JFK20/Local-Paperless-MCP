@@ -65,13 +65,45 @@ export class McpOpenAIBridge {
             .describe("Maximum number of documents to return"),
     });
 
+    public getDocumentSchema = z.object({
+        id: z
+            .number()
+            .optional()
+            .describe("ID of the document to retrieve"),
+        content__icontains: z
+            .string()
+            .optional()
+            .describe("Content to search for in the document"),
+        title: z.string().optional().describe("title of the documents to find"),
+        tag: z.string().optional().describe("tag of the documents to find"),
+        correspondent: z
+            .string()
+            .optional()
+            .describe("correspondent of the documents to find"),
+        limit: z
+            .number()
+            .optional()
+            .default(10)
+            .describe("Maximum number of documents to return"),
+    }).refine((data) => {
+        const hasId = data.id !== undefined;
+        const hasContent = data.content__icontains !== undefined;
+        const hasTitle = data.title !== undefined;
+        const hasTag = data.tag !== undefined;
+        const hasCorrespondent = data.correspondent !== undefined;
+
+        return hasId || hasContent || hasTitle || hasTag || hasCorrespondent;
+    }, {
+        message: "At least one parameter (id, content__icontains, title, tag, or correspondent) must be provided",
+    })
+
     private setupMCPHandlers() {
         // List available tools
         this.server.setRequestHandler(ListToolsRequestSchema, async () => {
             return {
                 tools: [
                     {
-                        name: "get_documents",
+                        name: "get_documents_by_title",
                         description:
                             "find documents in Paperless NGX. IMPORTANT: You must provide a 'title' parameter.",
                         inputSchema: {
@@ -154,6 +186,11 @@ export class McpOpenAIBridge {
                             required: ["correspondent"],
                         },
                     },
+                    {
+                        name: "get_document",
+                        description: "Gets a document in Paperless NGX.",
+                        inputSchema: this.getDocumentSchema
+                    }
                 ] as Tool[],
             };
         });
@@ -168,7 +205,7 @@ export class McpOpenAIBridge {
 
                 let args;
                 switch (request.params.name) {
-                    case "get_documents":
+                    case "get_documents_by_title":
                         args = this.getDocumentsByTitleSchema.parse(
                             request.params.arguments
                         );
@@ -192,6 +229,11 @@ export class McpOpenAIBridge {
                         return await this.paperlessAPI.searchDocumentsByCorrespondent(
                             args
                         );
+                    case "get_document":
+                        args = this.getDocumentSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.getDocumentAllParams(args);
                     default:
                         this.logger.error(
                             `Unknown tool: ${request.params.name}`

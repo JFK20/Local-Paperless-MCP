@@ -98,6 +98,7 @@ export class PaperlessAPI {
         correspondent?: string;
         created__date__gte?: string;
         created__date__lte?: string;
+        document_type?: string;
         limit?: number;
     }) {
         try {
@@ -109,6 +110,7 @@ export class PaperlessAPI {
                 correspondent,
                 created__date__gte,
                 created__date__lte,
+                document_type,
                 limit = 10,
             } = args;
             const headers = this.getPaperlessHeaders();
@@ -145,6 +147,10 @@ export class PaperlessAPI {
 
             if (created__date__lte) {
                 params.created__date__lte = created__date__lte;
+            }
+
+            if (document_type) {
+                params.document_type__name__icontains = document_type;
             }
 
             const response = await axios.get<PaperlessSearchResponse>(

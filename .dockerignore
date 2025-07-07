@@ -1,2 +1,6 @@
 .env
 .env.dev
+dist
+.idea
+.github
+node_modules

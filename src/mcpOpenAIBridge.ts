@@ -67,6 +67,10 @@ export class McpOpenAIBridge {
                 .describe(
                     "creation date lesser than or equal to the specified date"
                 ),
+            document_type: z
+                .string()
+                .optional()
+                .describe("Document type to search for"),
             limit: z
                 .number()
                 .optional()
@@ -82,6 +86,8 @@ export class McpOpenAIBridge {
                 const hasCorrespondent = data.correspondent !== undefined;
                 const hasCreatedDateGte = data.created__date__gte !== undefined;
                 const hasCreatedDateLte = data.created__date__lte !== undefined;
+                const hasDocumentTypeName =
+                    data.document_type !== undefined;
 
                 return (
                     hasId ||
@@ -90,12 +96,13 @@ export class McpOpenAIBridge {
                     hasTag ||
                     hasCorrespondent ||
                     hasCreatedDateGte ||
-                    hasCreatedDateLte
+                    hasCreatedDateLte ||
+                    hasDocumentTypeName
                 );
             },
             {
                 message:
-                    "At least one parameter (id, content__icontains, title, tag, correspondent, created__date__gte, created__date__lte) must be provided",
+                    "At least one parameter (id, content__icontains, title, tag, correspondent, created__date__gte, created__date__lte, document_type__name__icontains) must be provided",
             }
         );
 
@@ -164,6 +171,11 @@ export class McpOpenAIBridge {
                                     format: "date",
                                     description:
                                         "creation date lesser than or equal to the specified date",
+                                },
+                                document_type: {
+                                    type: "string",
+                                    description:
+                                        "Document type to search for",
                                 },
                                 limit: {
                                     type: "number",

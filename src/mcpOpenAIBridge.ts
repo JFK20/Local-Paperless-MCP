@@ -86,8 +86,7 @@ export class McpOpenAIBridge {
                 const hasCorrespondent = data.correspondent !== undefined;
                 const hasCreatedDateGte = data.created__date__gte !== undefined;
                 const hasCreatedDateLte = data.created__date__lte !== undefined;
-                const hasDocumentTypeName =
-                    data.document_type !== undefined;
+                const hasDocumentTypeName = data.document_type !== undefined;
 
                 return (
                     hasId ||
@@ -174,8 +173,7 @@ export class McpOpenAIBridge {
                                 },
                                 document_type: {
                                     type: "string",
-                                    description:
-                                        "Document type to search for",
+                                    description: "Document type to search for",
                                 },
                                 limit: {
                                     type: "number",

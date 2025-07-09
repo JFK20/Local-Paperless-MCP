@@ -1,15 +1,10 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import {
-    CallToolRequestSchema,
-    ListToolsRequestSchema,
-    Tool,
-} from "@modelcontextprotocol/sdk/types.js";
-import { PaperlessAPI } from "./paperlessAPI.js";
-import { testPaperlessConnection } from "./startTests.js";
-import { Logger } from "./logger.js";
+import {Server} from "@modelcontextprotocol/sdk/server/index.js";
+import {CallToolRequestSchema, ListToolsRequestSchema, Tool,} from "@modelcontextprotocol/sdk/types.js";
+import {PaperlessAPI} from "./paperlessAPI.js";
+import {testPaperlessConnection} from "./startTests.js";
+import {Logger} from "./logger.js";
 import "dotenv/config";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-const isDevMode = process.env.NODE_ENV === "development";
+import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
 import z from "zod";
 
 export class McpOpenAIBridge {
@@ -130,6 +125,15 @@ export class McpOpenAIBridge {
                         },
                     },
                     {
+                        name: "list_document_types",
+                        description:
+                            "Lists all document types in Paperless NGX",
+                        inputSchema: {
+                            type: "object",
+                            properties: {},
+                        }
+                    },
+                    {
                         name: "get_document",
                         description: "Gets a document in Paperless NGX.",
                         inputSchema: {
@@ -200,10 +204,11 @@ export class McpOpenAIBridge {
                 let args;
                 switch (request.params.name) {
                     case "list_tags":
-                        const tags = await this.paperlessAPI.listTags();
-                        return tags;
+                        return await this.paperlessAPI.listTags();
                     case "list_correspondent":
                         return await this.paperlessAPI.listCorrespondents();
+                    case "list_document_types":
+                        return await this.paperlessAPI.listDocumentTypes();
                     case "get_document":
                         args = this.getDocumentSchema.parse(
                             request.params.arguments

@@ -42,6 +42,12 @@ export interface PaperlessCorrespondent {
     document_count: number;
 }
 
+export interface PaperlessDocumentType {
+    id: number;
+    name: string;
+    document_count: number;
+}
+
 export interface PaperlessSearchResponse {
     count: number;
     next: string | null;

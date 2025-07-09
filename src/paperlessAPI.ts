@@ -2,7 +2,7 @@ import {
     DocumentSearchResult,
     PaperlessConfig,
     PaperlessCorrespondent,
-    PaperlessDocument,
+    PaperlessDocument, PaperlessDocumentType,
     PaperlessSearchResponse,
     PaperlessTag,
 } from "./types.js";
@@ -241,6 +241,46 @@ export class PaperlessAPI {
             };
         } catch (error: any) {
             throw new Error(`List Correspondent error: ${error.message}`);
+        }
+    }
+
+    //Helper Function to Format a DocumentType
+    public formatDocumentType(documentType: PaperlessDocumentType) {
+        return `DocumentType ID: ${documentType.id}, Name: ${documentType.name}, Document with this Tag: ${documentType.document_count}`;
+    }
+
+    public async listDocumentTypes() {
+        try {
+            const headers = this.getPaperlessHeaders();
+            const response = await axios.get(
+                `${this.paperlessConfig.baseUrl}/api/document_types/`,
+                {
+                    headers,
+                }
+            );
+
+            let documentTypes = response.data.results.map(
+                (type: PaperlessDocumentType) => ({
+                    id: type.id,
+                    name: type.name,
+                    document_count: type.document_count,
+                })
+            );
+
+            let formattedCorrespondents = documentTypes.map(
+                this.formatDocumentType
+            );
+
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: JSON.stringify(formattedCorrespondents, null, 2),
+                    },
+                ],
+            };
+        } catch (error: any) {
+            throw new Error(`List Document Types error: ${error.message}`);
         }
     }
 }

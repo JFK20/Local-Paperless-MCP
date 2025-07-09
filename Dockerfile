@@ -17,4 +17,4 @@ RUN apt-get update && \
 
 COPY --from=node-base /app .
 EXPOSE ${BRIDGE_PORT}
-CMD ["sh", "-c", "uvx mcpo --host 0.0.0.0 --port ${BRIDGE_PORT:-3001} -- node dist/index.js"]
+CMD ["sh", "-c", "echo  ${MCPO_API_KEY} && uvx mcpo --host 0.0.0.0 --api-key ${MCPO_API_KEY} --port ${BRIDGE_PORT:-3001} -- node dist/index.js"]

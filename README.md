@@ -34,11 +34,13 @@ edit the `.env` file for Docker with the following variables:
 ```env
 # Server Configuration
 BRIDGE_PORT=3001
-NODE_ENV=development
 
 # Paperless-NGX Configuration
 PAPERLESS_BASE_URL=http://your-paperless-url:port
 PAPERLESS_TOKEN=your-paperless-api-token
+
+# MCPO Configuration
+MCPO_API_KEY=your-secret-key
 ```
 
 ### 3. Start with Docker Compose:

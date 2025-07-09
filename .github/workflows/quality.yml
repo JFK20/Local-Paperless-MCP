@@ -44,4 +44,3 @@ jobs:
 
     - name: Build TypeScript
       run: npm run ts-compile-check
-

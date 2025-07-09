@@ -104,6 +104,52 @@ export class McpOpenAIBridge {
             }
         );
 
+    public bulkEditSchema = z.object({
+        documentIds: z.array(z.number()).describe("IDs of the documents to edit"),
+        method: z.enum([
+            'set_correspondent',
+            'set_document_type',
+            //'set_storage_path',
+            //'add_tag',
+            //'remove_tag',
+            'modify_tags',
+            'delete',
+            //'reprocess',
+            //'merge',
+            //'split',
+            //'rotate',
+            //'delete_pages'
+        ]),
+        correspondent_id: z.number().optional().describe("ID of the correspondent to set"),
+        document_type_id: z.number().optional().describe("ID of the document type to set"),
+        add_tags_ids: z.array(z.number()).optional().describe("IDs of the tags to add"),
+        remove_tags_ids: z.array(z.number()).optional().describe("IDs of the tags to remove"),
+        //tag_id: z.number().optional().describe("ID of the tag to set"),
+        /*permissions: z
+            .object({
+                owner_id: z.number().nullable().optional().describe("ID of the owner to set"),
+                set_permissions: z
+                    .object({
+                        view: z.object({
+                            users: z.array(z.number()).describe("IDs of the users to set as viewers"),
+                            groups: z.array(z.number()).describe("IDs of the groups to set as viewers")
+                        }),
+                        change: z.object({
+                            users: z.array(z.number()),
+                            groups: z.array(z.number())
+                        })
+                    })
+                    .optional(),
+                merge: z.boolean().optional().default(false).describe("Whether to merge or overwrite permissions"),
+            })
+            .optional(),*/
+        //metadata_document_id: z.number().optional(),
+        //delete_originals: z.boolean().optional(),
+        //pages: z.string().optional(),
+        //degrees: z.number().optional()
+    })
+
+
     private setupMCPHandlers() {
         // List available tools
         this.server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -193,6 +239,63 @@ export class McpOpenAIBridge {
                             required: [],
                         },
                     },
+                    {
+                        name: "edit_documents",
+                        description: "edit documents or their Metadata like Tags, Correspondents in Paperless NGX.",
+                        inputSchema: {
+                            type: "object",
+                            properties: {
+                                documentIds: {
+                                    type: "array",
+                                    items: { type: "number" },
+                                    description:
+                                        "IDs of the documents to edit",
+                                },
+                                method: {
+                                    type: "string",
+                                    enum: [
+                                        'set_correspondent',
+                                        'set_document_type',
+                                        //'set_storage_path',
+                                        //'add_tag',
+                                        //'remove_tag',
+                                        'modify_tags',
+                                        //'delete',
+                                        //'reprocess',
+                                        //'merge',
+                                        //'split',
+                                        //'rotate',
+                                        //'delete_pages'
+                                    ],
+                                    description:
+                                        "Method to use for editing documents, available methods: set_correspondent, set_document_type, modify_tags",
+                                },
+                                correspondent_id: {
+                                    type: "number",
+                                    description:
+                                        "ID of the correspondent to set",
+                                },
+                                document_type_id: {
+                                    type: "number",
+                                    description:
+                                        "ID of the document type to set",
+                                },
+                                add_tags_ids: {
+                                    type: "array",
+                                    items: { type: "number" },
+                                    description:
+                                        "IDs of the tags to add",
+                                },
+                                remove_tags_ids: {
+                                    type: "array",
+                                    items: { type: "number" },
+                                    description:
+                                        "IDs of the tags to remove",
+                                },
+                            },
+                            required: ["documentIds", "method"],
+                        }
+                    }
                 ] as Tool[],
             };
         });
@@ -220,6 +323,11 @@ export class McpOpenAIBridge {
                         return await this.paperlessAPI.getDocumentAllParams(
                             args
                         );
+                    case "edit_documents":
+                        args = this.bulkEditSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.bulkEditDocuments(args);
                     default:
                         this.logger.error(
                             `Unknown tool: ${request.params.name}`

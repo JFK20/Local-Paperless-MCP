@@ -1,4 +1,6 @@
 import {
+    DocumentEditRequest,
+    DocumentEditResponse,
     DocumentSearchResult,
     PaperlessConfig,
     PaperlessCorrespondent,
@@ -282,6 +284,86 @@ export class PaperlessAPI {
             };
         } catch (error: any) {
             throw new Error(`List Document Types error: ${error.message}`);
+        }
+    }
+
+    public async bulkEditDocuments(args: {
+        documentIds: number[];
+        method: string;
+        correspondent_id?: number;
+        document_type_id?: number;
+        tag_id?: number;
+        add_tags_ids?: number[];
+        remove_tags_ids?: number[];
+    }) {
+        try {
+            const {
+                documentIds,
+                method,
+                correspondent_id,
+                document_type_id,
+                add_tags_ids,
+                remove_tags_ids,
+            } = args;
+
+            const headers = this.getPaperlessHeaders();
+
+            // Prepare the request body based on the method and parameters
+            const requestBody: DocumentEditRequest = {
+                documents: documentIds,
+                method: method,
+                parameters: {}
+            };
+
+            // Add method-specific parameters
+            switch (method) {
+                case 'set_correspondent':
+                    if (correspondent_id !== undefined) {
+                        requestBody.parameters.correspondent = correspondent_id;
+                    }
+                    break;
+                case 'set_document_type':
+                    if (document_type_id !== undefined) {
+                        requestBody.parameters.document_type = document_type_id;
+                    }
+                    break;
+                case 'modify_tags':
+                    if (add_tags_ids) {
+                        requestBody.parameters.add_tags = add_tags_ids;
+                    } else {
+                        requestBody.parameters.add_tags = [];
+                    }
+                    if (remove_tags_ids) {
+                        requestBody.parameters.remove_tags = remove_tags_ids;
+                    } else {
+                        requestBody.parameters.remove_tags = [];
+                    }
+                    break;
+                case 'delete':
+                    // No additional parameters needed for delete
+                    break;
+            }
+
+            this.logger.info(`bulk edit request body: ${JSON.stringify(requestBody, null, 2)}`)
+
+            const response = await axios.post<DocumentEditResponse>(
+                `${this.paperlessConfig.baseUrl}/api/documents/bulk_edit/`,
+                requestBody,
+                {
+                    headers,
+                }
+            );
+
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `edit completed successfully: ${response.data.result}`,
+                    },
+                ],
+            };
+        } catch (error: any) {
+            throw new Error(`edit documents error: ${error.message}`);
         }
     }
 }

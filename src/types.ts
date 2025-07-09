@@ -60,3 +60,18 @@ export interface DocumentSearchResult {
     total: number;
     documents: string[];
 }
+
+export interface DocumentEditRequest {
+    documents: number[];
+    method: string;
+    parameters: {
+        correspondent?: number | null;
+        document_type?: number | null;
+        add_tags?: number[] | null;
+        remove_tags?: number[] | null;
+    };
+}
+
+export interface DocumentEditResponse {
+    result: string;
+}

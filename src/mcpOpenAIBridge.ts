@@ -1,10 +1,14 @@
-import {Server} from "@modelcontextprotocol/sdk/server/index.js";
-import {CallToolRequestSchema, ListToolsRequestSchema, Tool,} from "@modelcontextprotocol/sdk/types.js";
-import {PaperlessAPI} from "./paperlessAPI.js";
-import {testPaperlessConnection} from "./startTests.js";
-import {Logger} from "./logger.js";
+import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import {
+    CallToolRequestSchema,
+    ListToolsRequestSchema,
+    Tool,
+} from "@modelcontextprotocol/sdk/types.js";
+import { PaperlessAPI } from "./paperlessAPI.js";
+import { testPaperlessConnection } from "./startTests.js";
+import { Logger } from "./logger.js";
 import "dotenv/config";
-import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import z from "zod";
 
 export class McpOpenAIBridge {
@@ -131,7 +135,7 @@ export class McpOpenAIBridge {
                         inputSchema: {
                             type: "object",
                             properties: {},
-                        }
+                        },
                     },
                     {
                         name: "get_document",

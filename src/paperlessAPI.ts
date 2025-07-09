@@ -2,7 +2,8 @@ import {
     DocumentSearchResult,
     PaperlessConfig,
     PaperlessCorrespondent,
-    PaperlessDocument, PaperlessDocumentType,
+    PaperlessDocument,
+    PaperlessDocumentType,
     PaperlessSearchResponse,
     PaperlessTag,
 } from "./types.js";

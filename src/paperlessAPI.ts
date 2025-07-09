@@ -312,22 +312,22 @@ export class PaperlessAPI {
             const requestBody: DocumentEditRequest = {
                 documents: documentIds,
                 method: method,
-                parameters: {}
+                parameters: {},
             };
 
             // Add method-specific parameters
             switch (method) {
-                case 'set_correspondent':
+                case "set_correspondent":
                     if (correspondent_id !== undefined) {
                         requestBody.parameters.correspondent = correspondent_id;
                     }
                     break;
-                case 'set_document_type':
+                case "set_document_type":
                     if (document_type_id !== undefined) {
                         requestBody.parameters.document_type = document_type_id;
                     }
                     break;
-                case 'modify_tags':
+                case "modify_tags":
                     if (add_tags_ids) {
                         requestBody.parameters.add_tags = add_tags_ids;
                     } else {
@@ -339,12 +339,14 @@ export class PaperlessAPI {
                         requestBody.parameters.remove_tags = [];
                     }
                     break;
-                case 'delete':
+                case "delete":
                     // No additional parameters needed for delete
                     break;
             }
 
-            this.logger.info(`bulk edit request body: ${JSON.stringify(requestBody, null, 2)}`)
+            this.logger.info(
+                `bulk edit request body: ${JSON.stringify(requestBody, null, 2)}`
+            );
 
             const response = await axios.post<DocumentEditResponse>(
                 `${this.paperlessConfig.baseUrl}/api/documents/bulk_edit/`,

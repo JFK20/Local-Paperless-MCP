@@ -105,25 +105,39 @@ export class McpOpenAIBridge {
         );
 
     public bulkEditSchema = z.object({
-        documentIds: z.array(z.number()).describe("IDs of the documents to edit"),
+        documentIds: z
+            .array(z.number())
+            .describe("IDs of the documents to edit"),
         method: z.enum([
-            'set_correspondent',
-            'set_document_type',
+            "set_correspondent",
+            "set_document_type",
             //'set_storage_path',
             //'add_tag',
             //'remove_tag',
-            'modify_tags',
-            'delete',
+            "modify_tags",
+            "delete",
             //'reprocess',
             //'merge',
             //'split',
             //'rotate',
             //'delete_pages'
         ]),
-        correspondent_id: z.number().optional().describe("ID of the correspondent to set"),
-        document_type_id: z.number().optional().describe("ID of the document type to set"),
-        add_tags_ids: z.array(z.number()).optional().describe("IDs of the tags to add"),
-        remove_tags_ids: z.array(z.number()).optional().describe("IDs of the tags to remove"),
+        correspondent_id: z
+            .number()
+            .optional()
+            .describe("ID of the correspondent to set"),
+        document_type_id: z
+            .number()
+            .optional()
+            .describe("ID of the document type to set"),
+        add_tags_ids: z
+            .array(z.number())
+            .optional()
+            .describe("IDs of the tags to add"),
+        remove_tags_ids: z
+            .array(z.number())
+            .optional()
+            .describe("IDs of the tags to remove"),
         //tag_id: z.number().optional().describe("ID of the tag to set"),
         /*permissions: z
             .object({
@@ -147,8 +161,7 @@ export class McpOpenAIBridge {
         //delete_originals: z.boolean().optional(),
         //pages: z.string().optional(),
         //degrees: z.number().optional()
-    })
-
+    });
 
     private setupMCPHandlers() {
         // List available tools
@@ -241,25 +254,25 @@ export class McpOpenAIBridge {
                     },
                     {
                         name: "edit_documents",
-                        description: "edit documents or their Metadata like Tags, Correspondents in Paperless NGX.",
+                        description:
+                            "edit documents or their Metadata like Tags, Correspondents in Paperless NGX.",
                         inputSchema: {
                             type: "object",
                             properties: {
                                 documentIds: {
                                     type: "array",
                                     items: { type: "number" },
-                                    description:
-                                        "IDs of the documents to edit",
+                                    description: "IDs of the documents to edit",
                                 },
                                 method: {
                                     type: "string",
                                     enum: [
-                                        'set_correspondent',
-                                        'set_document_type',
+                                        "set_correspondent",
+                                        "set_document_type",
                                         //'set_storage_path',
                                         //'add_tag',
                                         //'remove_tag',
-                                        'modify_tags',
+                                        "modify_tags",
                                         //'delete',
                                         //'reprocess',
                                         //'merge',
@@ -283,19 +296,17 @@ export class McpOpenAIBridge {
                                 add_tags_ids: {
                                     type: "array",
                                     items: { type: "number" },
-                                    description:
-                                        "IDs of the tags to add",
+                                    description: "IDs of the tags to add",
                                 },
                                 remove_tags_ids: {
                                     type: "array",
                                     items: { type: "number" },
-                                    description:
-                                        "IDs of the tags to remove",
+                                    description: "IDs of the tags to remove",
                                 },
                             },
                             required: ["documentIds", "method"],
-                        }
-                    }
+                        },
+                    },
                 ] as Tool[],
             };
         });

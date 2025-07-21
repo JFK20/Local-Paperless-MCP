@@ -170,6 +170,30 @@ export class PaperlessAPI {
         }
     }
 
+    public async getAllDocuments() {
+        try {
+            const headers = this.getPaperlessHeaders();
+            const response = await axios.get<PaperlessSearchResponse>(
+                `${this.paperlessConfig.baseUrl}/api/documents/`,
+                {
+                    headers,
+                }
+            );
+
+            const documents = response.data.results.map(
+                (doc: PaperlessDocument) => ({
+                    id: doc.id,
+                    document_type: doc.document_type,
+                    title: doc.title,
+                })
+            );
+
+            return documents;
+        } catch (error: any) {
+            throw new Error(`Get all documents error: ${error.message}`);
+        }
+    }
+
     //Helper Function to Format a Tag
     public formatTag(tag: PaperlessTag) {
         return `Tag ID: ${tag.id}, Name: ${tag.name}, Color: ${tag.color}, Document with this Tag: ${tag.document_count}`;

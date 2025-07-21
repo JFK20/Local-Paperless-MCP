@@ -3,6 +3,8 @@ import {
     CallToolRequestSchema,
     ListToolsRequestSchema,
     Tool,
+    ListResourcesRequestSchema,
+    ReadResourceRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { PaperlessAPI } from "./paperlessAPI.js";
 import { testPaperlessConnection } from "./startTests.js";
@@ -28,11 +30,13 @@ export class McpOpenAPIBridge {
             {
                 capabilities: {
                     tools: {},
+                    resources: {},
                 },
             }
         );
 
-        this.setupMCPHandlers();
+        this.setupMCPResources();
+        this.setupMCPTools();
     }
 
     public getDocumentSchema = z
@@ -163,7 +167,7 @@ export class McpOpenAPIBridge {
         //degrees: z.number().optional()
     });
 
-    private setupMCPHandlers() {
+    private setupMCPTools() {
         // List available tools
         this.server.setRequestHandler(ListToolsRequestSchema, async () => {
             return {
@@ -344,6 +348,70 @@ export class McpOpenAPIBridge {
                             `Unknown tool: ${request.params.name}`
                         );
                         throw new Error(`Unknown tool: ${request.params.name}`);
+                }
+            }
+        );
+    }
+
+    private setupMCPResources() {
+        this.logger.info("MCP Resources setup initiated.");
+
+        this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
+            try {
+                const documents = await this.paperlessAPI.getAllDocuments();
+                this.logger.info(`Found ${documents.length} documents`);
+
+                return {
+                    resources: documents.map((doc) => ({
+                        uri: `paperless://documents/${doc.id}`,
+                        name: doc.title || `Document ${doc.id}`,
+                        description: `Paperless NGX document: ${doc.title || `Document ${doc.id}`}`,
+                        mimeType: "application/json",
+                    })),
+                };
+            } catch (error) {
+                this.logger.error("Error listing resources:", error);
+                return { resources: [] };
+            }
+        });
+
+        this.server.setRequestHandler(
+            ReadResourceRequestSchema,
+            async (request) => {
+                this.logger.info(
+                    `ReadResourceRequestSchema handler called for URI: ${request.params.uri}`
+                );
+                try {
+                    const uri = request.params.uri;
+                    const documentIdMatch = uri.match(
+                        /paperless:\/\/documents\/(\d+)$/
+                    );
+
+                    if (!documentIdMatch) {
+                        throw new Error(`Invalid document URI: ${uri}`);
+                    }
+
+                    const documentId = parseInt(documentIdMatch[1]);
+                    const response =
+                        await this.paperlessAPI.getDocumentAllParams({
+                            id: documentId,
+                            limit: 1, // muss eigentlich immer 1 zurück kommen auch ohne diese angabe weil ID eindeutig ist
+                        });
+
+                    return {
+                        contents: [
+                            {
+                                uri,
+                                mimeType: "application/json",
+                                text: JSON.stringify(response.content),
+                            },
+                        ],
+                    };
+                } catch (error) {
+                    this.logger.error("Error reading resource:", error);
+                    throw new Error(
+                        `Failed to read document: ${error.message}`
+                    );
                 }
             }
         );

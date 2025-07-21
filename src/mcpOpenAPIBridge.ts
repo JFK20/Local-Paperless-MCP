@@ -11,7 +11,7 @@ import "dotenv/config";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import z from "zod";
 
-export class McpOpenAIBridge {
+export class McpOpenAPIBridge {
     private server: Server;
     private paperlessAPI: PaperlessAPI;
     private logger: Logger;

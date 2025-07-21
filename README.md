@@ -107,7 +107,7 @@ This MCP server is tested and used with Open WebUI when deployed with mcpo.
 ```
 src/
 ├── index.ts             # Main entry point
-├── mcpOpenAIBridge.ts   # MCP Server implementation
+├── mcpOpenAPIBridge.ts   # MCP Server implementation
 ├── paperlessAPI.ts      # Paperless-NGX API client
 ├── types.ts             # TypeScript definitions
 ├── startTests.ts        # Connection tests

@@ -166,15 +166,15 @@ export class PaperlessAPI {
 
             return this.parseDocumentData(response.data);
         } catch (error: any) {
-           return {
-               isError: true,
-               content: [
-                   {
-                       type: "text",
-                       text: `Error: ${error.message}`,
-                   }
-               ],
-           }
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error: ${error.message}`,
+                    },
+                ],
+            };
         }
     }
 
@@ -217,9 +217,9 @@ export class PaperlessAPI {
                     {
                         type: "text",
                         text: `Error: ${error.message}`,
-                    }
+                    },
                 ],
-            }
+            };
         }
     }
 
@@ -265,9 +265,9 @@ export class PaperlessAPI {
                     {
                         type: "text",
                         text: `Error: ${error.message}`,
-                    }
+                    },
                 ],
-            }
+            };
         }
     }
 
@@ -313,9 +313,9 @@ export class PaperlessAPI {
                     {
                         type: "text",
                         text: `Error: ${error.message}`,
-                    }
+                    },
                 ],
-            }
+            };
         }
     }
 
@@ -403,9 +403,9 @@ export class PaperlessAPI {
                     {
                         type: "text",
                         text: `Error: ${error.message}`,
-                    }
+                    },
                 ],
-            }
+            };
         }
     }
 }

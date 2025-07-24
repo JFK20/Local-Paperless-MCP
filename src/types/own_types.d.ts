@@ -29,33 +29,6 @@ export interface PaperlessDocument {
     mime_type: string;
 }
 
-export interface PaperlessTag {
-    id: number;
-    name: string;
-    color: string;
-    document_count: number;
-}
-
-export interface PaperlessCorrespondent {
-    id: number;
-    name: string;
-    document_count: number;
-}
-
-export interface PaperlessDocumentType {
-    id: number;
-    name: string;
-    document_count: number;
-}
-
-export interface PaperlessSearchResponse {
-    count: number;
-    next: string | null;
-    previous: string | null;
-    all?: number[];
-    results: PaperlessDocument[];
-}
-
 export interface DocumentSearchResult {
     total: number;
     documents: string[];
@@ -70,8 +43,4 @@ export interface DocumentEditRequest {
         add_tags?: number[] | null;
         remove_tags?: number[] | null;
     };
-}
-
-export interface DocumentEditResponse {
-    result: string;
 }

@@ -1206,13 +1206,7 @@ export interface components {
             readonly id: number;
             user_args: unknown;
             /** Legt den PDF-Typ der Ausgabedatei fest */
-            output_type?:
-                | (
-                      | components["schemas"]["OutputTypeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            output_type?: (components["schemas"]["OutputTypeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /**
              * OCR von Seite 1 bis zu diesem Wert durchführen
              * Format: int64
@@ -1221,34 +1215,16 @@ export interface components {
             /** OCR für diese Sprachen durchführen */
             language?: string | null;
             /** Legt den OCR-Modus fest */
-            mode?:
-                | (
-                      | components["schemas"]["ModeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            mode?: (components["schemas"]["ModeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Steuert die Erzeugung einer Archivdatei */
-            skip_archive_file?:
-                | (
-                      | components["schemas"]["SkipArchiveFileEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            skip_archive_file?: (components["schemas"]["SkipArchiveFileEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /**
              * Setzt den Bild-DPI Fallback-Wert
              * Format: int64
              */
             image_dpi?: number | null;
             /** Steuert die unpaper-Bereinigung */
-            unpaper_clean?:
-                | (
-                      | components["schemas"]["UnpaperCleanEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            unpaper_clean?: (components["schemas"]["UnpaperCleanEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Aktiviert die Schräglagenkorrektur */
             deskew?: boolean | null;
             /** Aktiviert Seitenrotation */
@@ -1264,13 +1240,7 @@ export interface components {
              */
             max_image_pixels?: number | null;
             /** Legt die Ghostscript-Farbkonvertierungsstrategie fest */
-            color_conversion_strategy?:
-                | (
-                      | components["schemas"]["ColorConversionStrategyEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            color_conversion_strategy?: (components["schemas"]["ColorConversionStrategyEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Anwendungstitel */
             app_title?: string | null;
             /**
@@ -1282,13 +1252,7 @@ export interface components {
         ApplicationConfigurationRequest: {
             user_args: unknown;
             /** Legt den PDF-Typ der Ausgabedatei fest */
-            output_type?:
-                | (
-                      | components["schemas"]["OutputTypeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            output_type?: (components["schemas"]["OutputTypeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /**
              * OCR von Seite 1 bis zu diesem Wert durchführen
              * Format: int64
@@ -1297,34 +1261,16 @@ export interface components {
             /** OCR für diese Sprachen durchführen */
             language?: string | null;
             /** Legt den OCR-Modus fest */
-            mode?:
-                | (
-                      | components["schemas"]["ModeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            mode?: (components["schemas"]["ModeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Steuert die Erzeugung einer Archivdatei */
-            skip_archive_file?:
-                | (
-                      | components["schemas"]["SkipArchiveFileEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            skip_archive_file?: (components["schemas"]["SkipArchiveFileEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /**
              * Setzt den Bild-DPI Fallback-Wert
              * Format: int64
              */
             image_dpi?: number | null;
             /** Steuert die unpaper-Bereinigung */
-            unpaper_clean?:
-                | (
-                      | components["schemas"]["UnpaperCleanEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            unpaper_clean?: (components["schemas"]["UnpaperCleanEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Aktiviert die Schräglagenkorrektur */
             deskew?: boolean | null;
             /** Aktiviert Seitenrotation */
@@ -1340,13 +1286,7 @@ export interface components {
              */
             max_image_pixels?: number | null;
             /** Legt die Ghostscript-Farbkonvertierungsstrategie fest */
-            color_conversion_strategy?:
-                | (
-                      | components["schemas"]["ColorConversionStrategyEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            color_conversion_strategy?: (components["schemas"]["ColorConversionStrategyEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Anwendungstitel */
             app_title?: string | null;
             /**
@@ -1458,12 +1398,7 @@ export interface components {
          *     * `CMYK` - CMYK
          * @enum {string}
          */
-        ColorConversionStrategyEnum:
-            | "LeaveColorUnchanged"
-            | "RGB"
-            | "UseDeviceIndependentColor"
-            | "Gray"
-            | "CMYK";
+        ColorConversionStrategyEnum: "LeaveColorUnchanged" | "RGB" | "UseDeviceIndependentColor" | "Gray" | "CMYK";
         /**
          * @description * `none` - none
          *     * `deflated` - deflated
@@ -1556,29 +1491,17 @@ export interface components {
         CustomFieldInstance: {
             /** @description Given the *incoming* primitive data, return the value for this field
              *     that should be validated and transformed to a native value. */
-            value:
-                | (
-                      | string
-                      | number
-                      | {
-                            [key: string]: unknown;
-                        }
-                  )
-                | null;
+            value: (string | number | {
+                [key: string]: unknown;
+            }) | null;
             field: number;
         };
         CustomFieldInstanceRequest: {
             /** @description Given the *incoming* primitive data, return the value for this field
              *     that should be validated and transformed to a native value. */
-            value:
-                | (
-                      | string
-                      | number
-                      | {
-                            [key: string]: unknown;
-                        }
-                  )
-                | null;
+            value: (string | number | {
+                [key: string]: unknown;
+            }) | null;
             field: number;
         };
         CustomFieldRequest: {
@@ -1602,16 +1525,7 @@ export interface components {
          *     * `select` - select
          * @enum {string}
          */
-        DataTypeEnum:
-            | "string"
-            | "url"
-            | "date"
-            | "boolean"
-            | "integer"
-            | "float"
-            | "monetary"
-            | "documentlink"
-            | "select";
+        DataTypeEnum: "string" | "url" | "date" | "boolean" | "integer" | "float" | "monetary" | "documentlink" | "select";
         Database: {
             type: string;
             url: string;
@@ -2088,21 +2002,7 @@ export interface components {
          *     * `delete_pages` - delete_pages
          * @enum {string}
          */
-        MethodEnum:
-            | "set_correspondent"
-            | "set_document_type"
-            | "set_storage_path"
-            | "add_tag"
-            | "remove_tag"
-            | "modify_tags"
-            | "modify_custom_fields"
-            | "delete"
-            | "reprocess"
-            | "set_permissions"
-            | "rotate"
-            | "merge"
-            | "split"
-            | "delete_pages";
+        MethodEnum: "set_correspondent" | "set_document_type" | "set_storage_path" | "add_tag" | "remove_tag" | "modify_tags" | "modify_custom_fields" | "delete" | "reprocess" | "set_permissions" | "rotate" | "merge" | "split" | "delete_pages";
         MigrationStatus: {
             latest_migration: string;
             unapplied_migrations: string[];
@@ -2150,11 +2050,7 @@ export interface components {
          *     * `storage_paths` - storage_paths
          * @enum {string}
          */
-        ObjectTypeEnum:
-            | "tags"
-            | "correspondents"
-            | "document_types"
-            | "storage_paths";
+        ObjectTypeEnum: "tags" | "correspondents" | "document_types" | "storage_paths";
         /**
          * @description * `set_permissions` - set_permissions
          *     * `delete` - delete
@@ -2456,13 +2352,7 @@ export interface components {
         PatchedApplicationConfigurationRequest: {
             user_args?: unknown;
             /** Legt den PDF-Typ der Ausgabedatei fest */
-            output_type?:
-                | (
-                      | components["schemas"]["OutputTypeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            output_type?: (components["schemas"]["OutputTypeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /**
              * OCR von Seite 1 bis zu diesem Wert durchführen
              * Format: int64
@@ -2471,34 +2361,16 @@ export interface components {
             /** OCR für diese Sprachen durchführen */
             language?: string | null;
             /** Legt den OCR-Modus fest */
-            mode?:
-                | (
-                      | components["schemas"]["ModeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            mode?: (components["schemas"]["ModeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Steuert die Erzeugung einer Archivdatei */
-            skip_archive_file?:
-                | (
-                      | components["schemas"]["SkipArchiveFileEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            skip_archive_file?: (components["schemas"]["SkipArchiveFileEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /**
              * Setzt den Bild-DPI Fallback-Wert
              * Format: int64
              */
             image_dpi?: number | null;
             /** Steuert die unpaper-Bereinigung */
-            unpaper_clean?:
-                | (
-                      | components["schemas"]["UnpaperCleanEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            unpaper_clean?: (components["schemas"]["UnpaperCleanEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Aktiviert die Schräglagenkorrektur */
             deskew?: boolean | null;
             /** Aktiviert Seitenrotation */
@@ -2514,13 +2386,7 @@ export interface components {
              */
             max_image_pixels?: number | null;
             /** Legt die Ghostscript-Farbkonvertierungsstrategie fest */
-            color_conversion_strategy?:
-                | (
-                      | components["schemas"]["ColorConversionStrategyEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            color_conversion_strategy?: (components["schemas"]["ColorConversionStrategyEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Anwendungstitel */
             app_title?: string | null;
             /**
@@ -2766,13 +2632,7 @@ export interface components {
              */
             page_size?: number | null;
             /** Ansichts-Anzeigemodus */
-            display_mode?:
-                | (
-                      | components["schemas"]["DisplayModeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            display_mode?: (components["schemas"]["DisplayModeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Angezeigte Dokumentenfelder */
             display_fields?: unknown;
             /** Eigentümer */
@@ -2957,9 +2817,7 @@ export interface components {
             /** Bearbeitungsberechtigungen für diese Gruppen entfernen */
             remove_change_groups?: number[];
             email?: components["schemas"]["WorkflowActionEmailRequest"] | null;
-            webhook?:
-                | components["schemas"]["WorkflowActionWebhookRequest"]
-                | null;
+            webhook?: components["schemas"]["WorkflowActionWebhookRequest"] | null;
         };
         PatchedWorkflowRequest: {
             name?: string;
@@ -3126,55 +2984,7 @@ export interface components {
          *     * `47` - MIME-Typ ist
          * @enum {integer}
          */
-        RuleTypeEnum:
-            | 0
-            | 1
-            | 2
-            | 3
-            | 4
-            | 5
-            | 6
-            | 7
-            | 8
-            | 9
-            | 10
-            | 11
-            | 12
-            | 13
-            | 14
-            | 15
-            | 16
-            | 17
-            | 18
-            | 19
-            | 20
-            | 21
-            | 22
-            | 23
-            | 24
-            | 25
-            | 26
-            | 27
-            | 28
-            | 29
-            | 30
-            | 31
-            | 32
-            | 33
-            | 34
-            | 35
-            | 36
-            | 37
-            | 38
-            | 39
-            | 40
-            | 41
-            | 42
-            | 43
-            | 44
-            | 45
-            | 46
-            | 47;
+        RuleTypeEnum: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38 | 39 | 40 | 41 | 42 | 43 | 44 | 45 | 46 | 47;
         SanityCheck: {
             status: string;
             error: string;
@@ -3199,13 +3009,7 @@ export interface components {
              */
             page_size?: number | null;
             /** Ansichts-Anzeigemodus */
-            display_mode?:
-                | (
-                      | components["schemas"]["DisplayModeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            display_mode?: (components["schemas"]["DisplayModeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Angezeigte Dokumentenfelder */
             display_fields?: unknown;
             /** Eigentümer */
@@ -3241,13 +3045,7 @@ export interface components {
              */
             page_size?: number | null;
             /** Ansichts-Anzeigemodus */
-            display_mode?:
-                | (
-                      | components["schemas"]["DisplayModeEnum"]
-                      | components["schemas"]["BlankEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            display_mode?: (components["schemas"]["DisplayModeEnum"] | components["schemas"]["BlankEnum"] | components["schemas"]["NullEnum"]) | null;
             /** Angezeigte Dokumentenfelder */
             display_fields?: unknown;
             /** Eigentümer */
@@ -3270,11 +3068,7 @@ export interface components {
          *     * `custom_field` - Benutzerdefiniertes Feld
          * @enum {string}
          */
-        ScheduleDateFieldEnum:
-            | "added"
-            | "created"
-            | "modified"
-            | "custom_field";
+        ScheduleDateFieldEnum: "added" | "created" | "modified" | "custom_field";
         SearchResult: {
             total: number;
             documents: components["schemas"]["Document"][];
@@ -3359,14 +3153,7 @@ export interface components {
          *     * `SUCCESS` - SUCCESS
          * @enum {string}
          */
-        StatusEnum:
-            | "FAILURE"
-            | "PENDING"
-            | "RECEIVED"
-            | "RETRY"
-            | "REVOKED"
-            | "STARTED"
-            | "SUCCESS";
+        StatusEnum: "FAILURE" | "PENDING" | "RECEIVED" | "RETRY" | "REVOKED" | "STARTED" | "SUCCESS";
         Storage: {
             total: number;
             available: number;
@@ -3495,11 +3282,7 @@ export interface components {
          *     * `index_optimize` - Indexoptimierung
          * @enum {string}
          */
-        TaskNameEnum:
-            | "consume_file"
-            | "train_classifier"
-            | "check_sanity"
-            | "index_optimize";
+        TaskNameEnum: "consume_file" | "train_classifier" | "check_sanity" | "index_optimize";
         Tasks: {
             redis_url: string;
             redis_status: string;
@@ -3522,12 +3305,7 @@ export interface components {
              *     * `check_sanity` - Plausibilität prüfen
              *     * `index_optimize` - Indexoptimierung
              */
-            task_name?:
-                | (
-                      | components["schemas"]["TaskNameEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            task_name?: (components["schemas"]["TaskNameEnum"] | components["schemas"]["NullEnum"]) | null;
             /**
              * Aufgaben-Dateiname
              * @description Name der Datei, für die die Aufgabe ausgeführt wurde
@@ -3596,12 +3374,7 @@ export interface components {
              *     * `check_sanity` - Plausibilität prüfen
              *     * `index_optimize` - Indexoptimierung
              */
-            task_name?:
-                | (
-                      | components["schemas"]["TaskNameEnum"]
-                      | components["schemas"]["NullEnum"]
-                  )
-                | null;
+            task_name?: (components["schemas"]["TaskNameEnum"] | components["schemas"]["NullEnum"]) | null;
             /**
              * Aufgaben-Dateiname
              * @description Name der Datei, für die die Aufgabe ausgeführt wurde
@@ -3955,9 +3728,7 @@ export interface components {
             /** Bearbeitungsberechtigungen für diese Gruppen entfernen */
             remove_change_groups?: number[];
             email?: components["schemas"]["WorkflowActionEmailRequest"] | null;
-            webhook?:
-                | components["schemas"]["WorkflowActionWebhookRequest"]
-                | null;
+            webhook?: components["schemas"]["WorkflowActionWebhookRequest"] | null;
         };
         /**
          * @description * `1` - Zuordnung
@@ -7203,26 +6974,14 @@ export interface operations {
                  *     * `REVOKED` - REVOKED
                  *     * `STARTED` - STARTED
                  *     * `SUCCESS` - SUCCESS */
-                status?:
-                    | "FAILURE"
-                    | "PENDING"
-                    | "RECEIVED"
-                    | "RETRY"
-                    | "REVOKED"
-                    | "STARTED"
-                    | "SUCCESS";
+                status?: "FAILURE" | "PENDING" | "RECEIVED" | "RETRY" | "REVOKED" | "STARTED" | "SUCCESS";
                 /** @description Name der ausgeführten Aufgabe
                  *
                  *     * `consume_file` - Datei verarbeiten
                  *     * `train_classifier` - Klassifikator trainieren
                  *     * `check_sanity` - Plausibilität prüfen
                  *     * `index_optimize` - Indexoptimierung */
-                task_name?:
-                    | "check_sanity"
-                    | "consume_file"
-                    | "index_optimize"
-                    | "train_classifier"
-                    | null;
+                task_name?: "check_sanity" | "consume_file" | "index_optimize" | "train_classifier" | null;
                 /** @description Art der ausgeführten Aufgabe
                  *
                  *     * `auto_task` - Automatische Aufgabe

@@ -1,17 +1,7 @@
-import {
-    DocumentEditRequest,
-    DocumentEditResponse,
-    DocumentSearchResult,
-    PaperlessConfig,
-    PaperlessCorrespondent,
-    PaperlessDocument,
-    PaperlessDocumentType,
-    PaperlessSearchResponse,
-    PaperlessTag,
-} from "./types/own_types";
+import { DocumentSearchResult, PaperlessConfig } from "./types/own_types";
 import { components } from "./types/gen_paperless";
 import axios from "axios";
-import { Logger } from "./logger";
+import { Logger } from "./logger.js";
 
 export class PaperlessAPI {
     public paperlessConfig: PaperlessConfig;
@@ -45,7 +35,7 @@ export class PaperlessAPI {
     }
 
     //Helper Function to Format a Document
-    public formatDocument(doc: PaperlessDocument) {
+    public formatDocument(doc: components["schemas"]["Document"]) {
         return `Title: ${doc.title} ID: ${doc.id} \n  Content: ${doc.content}... \n  Tags: ${doc.tags.join(", ")}\n 
         Correspondent: ${doc.correspondent || "N/A"} \n  Document Type: ${doc.document_type || "N/A"} \n created_date: ${doc.created_date} \n 
         Archived File Name: ${doc.archived_file_name} \n  Owner: ${doc.owner} \n  Notes: ${doc.notes || "N/A"}`;
@@ -54,7 +44,7 @@ export class PaperlessAPI {
     public parseDocumentData(
         result: components["schemas"]["PaginatedDocumentList"]
     ) {
-        const documents = result.results.map(
+        /*const documents = result.results.map(
             (doc: components["schemas"]["Document"]) => ({
                 id: doc.id,
                 correspondent: doc.correspondent,
@@ -79,9 +69,9 @@ export class PaperlessAPI {
                 page_count: doc.page_count,
                 mime_type: doc.mime_type,
             })
-        );
+        );*/
 
-        let formattedDocuments = documents.map(this.formatDocument);
+        let formattedDocuments = result.results.map(this.formatDocument);
 
         const searchResult: DocumentSearchResult = {
             total: result.count,
@@ -183,7 +173,7 @@ export class PaperlessAPI {
     }
 
     //Helper Function to Format a Tag
-    public formatTag(tag: PaperlessTag) {
+    public formatTag(tag: components["schemas"]["Tag"]) {
         return `Tag ID: ${tag.id}, Name: ${tag.name}, Color: ${tag.color}, Document with this Tag: ${tag.document_count}`;
     }
 
@@ -196,16 +186,16 @@ export class PaperlessAPI {
                 headers,
             });
 
-            let tags = response.data.results.map(
+            /*let tags = response.data.results.map(
                 (tag: components["schemas"]["Tag"]) => ({
                     id: tag.id,
                     name: tag.name,
                     color: tag.color,
                     document_count: tag.document_count,
                 })
-            );
+            );*/
 
-            let formattedTags = tags.map(this.formatTag);
+            let formattedTags = response.data.results.map(this.formatTag);
 
             return {
                 content: [
@@ -229,29 +219,30 @@ export class PaperlessAPI {
     }
 
     //Helper Function to Format a Tag
-    public formatCorrespondent(correspondent: PaperlessCorrespondent) {
+    public formatCorrespondent(
+        correspondent: components["schemas"]["Correspondent"]
+    ) {
         return `Tag ID: ${correspondent.id}, Name: ${correspondent.name}, Document with this Tag: ${correspondent.document_count}`;
     }
 
     public async listCorrespondents() {
         try {
             const headers = this.getPaperlessHeaders();
-            const response = await axios.get(
-                `${this.paperlessConfig.baseUrl}/api/correspondents/`,
-                {
-                    headers,
-                }
-            );
+            const response = await axios.get<
+                components["schemas"]["PaginatedCorrespondentList"]
+            >(`${this.paperlessConfig.baseUrl}/api/correspondents/`, {
+                headers,
+            });
 
-            let correspondent = response.data.results.map(
+            /*let correspondent = response.data.results.map(
                 (correspondent: PaperlessCorrespondent) => ({
                     id: correspondent.id,
                     name: correspondent.name,
                     document_count: correspondent.document_count,
                 })
-            );
+            );*/
 
-            let formattedCorrespondents = correspondent.map(
+            let formattedCorrespondents = response.data.results.map(
                 this.formatCorrespondent
             );
 
@@ -277,29 +268,30 @@ export class PaperlessAPI {
     }
 
     //Helper Function to Format a DocumentType
-    public formatDocumentType(documentType: PaperlessDocumentType) {
+    public formatDocumentType(
+        documentType: components["schemas"]["DocumentType"]
+    ) {
         return `DocumentType ID: ${documentType.id}, Name: ${documentType.name}, Document with this Tag: ${documentType.document_count}`;
     }
 
     public async listDocumentTypes() {
         try {
             const headers = this.getPaperlessHeaders();
-            const response = await axios.get(
-                `${this.paperlessConfig.baseUrl}/api/document_types/`,
-                {
-                    headers,
-                }
-            );
+            const response = await axios.get<
+                components["schemas"]["PaginatedDocumentTypeList"]
+            >(`${this.paperlessConfig.baseUrl}/api/document_types/`, {
+                headers,
+            });
 
-            let documentTypes = response.data.results.map(
+            /*let documentTypes = response.data.results.map(
                 (type: PaperlessDocumentType) => ({
                     id: type.id,
                     name: type.name,
                     document_count: type.document_count,
                 })
-            );
+            );*/
 
-            let formattedCorrespondents = documentTypes.map(
+            let formattedCorrespondents = response.data.results.map(
                 this.formatDocumentType
             );
 
@@ -345,10 +337,12 @@ export class PaperlessAPI {
 
             const headers = this.getPaperlessHeaders();
 
+            const methodEnum = method as components["schemas"]["MethodEnum"];
+
             // Prepare the request body based on the method and parameters
-            const requestBody: DocumentEditRequest = {
+            const requestBody: components["schemas"]["BulkEditRequest"] = {
                 documents: documentIds,
-                method: method,
+                method: methodEnum,
                 parameters: {},
             };
 
@@ -385,7 +379,9 @@ export class PaperlessAPI {
                 `bulk edit request body: ${JSON.stringify(requestBody, null, 2)}`
             );
 
-            const response = await axios.post<DocumentEditResponse>(
+            const response = await axios.post<
+                components["schemas"]["BulkEditResult"]
+            >(
                 `${this.paperlessConfig.baseUrl}/api/documents/bulk_edit/`,
                 requestBody,
                 {

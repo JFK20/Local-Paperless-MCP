@@ -9,7 +9,7 @@
     "build:ts": "tsc",
     "build": "npm run build:types && npm run build:ts",
     "ts-compile-check": "tsc --noEmit",
-    "start": "tsc && node dist/index.js",
+    "start": "npm run build && node dist/index.js",
     "format": "npx prettier ./src --write"
   },
   "dependencies": {

@@ -1,5 +1,5 @@
-import { McpOpenAIBridge } from "./mcpOpenAIBridge";
-import { Logger } from "./logger";
+import { McpOpenAIBridge } from "./mcpOpenAIBridge.js";
+import { Logger } from "./logger.js";
 import "dotenv/config";
 
 const logger = Logger.getInstance();

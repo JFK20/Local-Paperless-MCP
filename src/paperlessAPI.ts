@@ -347,7 +347,7 @@ export class PaperlessAPI {
             };
 
             // Add method-specific parameters
-            switch (method) {
+            switch (methodEnum) {
                 case "set_correspondent":
                     if (correspondent_id !== undefined) {
                         requestBody.parameters.correspondent = correspondent_id;

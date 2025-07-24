@@ -285,6 +285,10 @@ export class McpOpenAIBridge {
             this.paperlessAPI
         );
 
+        if (paperlessConnected){
+            this.logger.info("Paperless connection started");
+        }
+
         if (!paperlessConnected) {
             this.logger.error(
                 "Paperless NGX is not accessible - document features will not work"

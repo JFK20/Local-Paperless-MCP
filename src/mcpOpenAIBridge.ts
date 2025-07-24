@@ -180,7 +180,7 @@ export class McpOpenAIBridge {
                             title: "List tags",
                             readOnlyHint: true,
                             openWorldHint: true,
-                        }
+                        },
                     },
                     {
                         name: "list_correspondents",
@@ -195,7 +195,7 @@ export class McpOpenAIBridge {
                             title: "List correspondents",
                             readOnlyHint: true,
                             openWorldHint: true,
-                        }
+                        },
                     },
                     {
                         name: "list_document_types",
@@ -210,7 +210,7 @@ export class McpOpenAIBridge {
                             title: "List document types",
                             readOnlyHint: true,
                             openWorldHint: true,
-                        }
+                        },
                     },
                     {
                         name: "get_documents",
@@ -220,7 +220,7 @@ export class McpOpenAIBridge {
                             title: "get Documents",
                             readOnlyHint: true,
                             openWorldHint: true,
-                        }
+                        },
                     },
                     {
                         name: "edit_documents",
@@ -233,7 +233,7 @@ export class McpOpenAIBridge {
                             destructiveHint: true,
                             idempotentHint: true,
                             openWorldHint: true,
-                        }
+                        },
                     },
                 ] as Tool[],
             };

@@ -180,15 +180,25 @@ export class McpOpenAPIBridge {
                             properties: {},
                             required: [],
                         },
+                        annotations: {
+                            title: "List tags",
+                            readOnlyHint: true,
+                            openWorldHint: true,
+                        },
                     },
                     {
-                        name: "list_correspondent",
+                        name: "list_correspondents",
                         description:
                             "Lists all correspondents in Paperless NGX",
                         inputSchema: {
                             type: "object",
                             properties: {},
                             required: [],
+                        },
+                        annotations: {
+                            title: "List correspondents",
+                            readOnlyHint: true,
+                            openWorldHint: true,
                         },
                     },
                     {
@@ -198,117 +208,35 @@ export class McpOpenAPIBridge {
                         inputSchema: {
                             type: "object",
                             properties: {},
+                            required: [],
+                        },
+                        annotations: {
+                            title: "List document types",
+                            readOnlyHint: true,
+                            openWorldHint: true,
                         },
                     },
                     {
-                        name: "get_document",
-                        description: "Gets a document in Paperless NGX.",
-                        inputSchema: {
-                            type: "object",
-                            properties: {
-                                id: {
-                                    type: "number",
-                                    description:
-                                        "ID of the document to retrieve",
-                                },
-                                content__icontains: {
-                                    type: "string",
-                                    description:
-                                        "Content to search for in the document",
-                                },
-                                title: {
-                                    type: "string",
-                                    description:
-                                        "Title of the documents to find",
-                                },
-                                tag: {
-                                    type: "string",
-                                    description: "Tag of the documents to find",
-                                },
-                                correspondent: {
-                                    type: "string",
-                                    description:
-                                        "Correspondent of the documents to find",
-                                },
-                                created__date__gte: {
-                                    type: "string",
-                                    format: "date",
-                                    description:
-                                        "creation date greater than or equal to the specified date",
-                                },
-                                created__date__lte: {
-                                    type: "string",
-                                    format: "date",
-                                    description:
-                                        "creation date lesser than or equal to the specified date",
-                                },
-                                document_type: {
-                                    type: "string",
-                                    description: "Document type to search for",
-                                },
-                                limit: {
-                                    type: "number",
-                                    default: 10,
-                                    description:
-                                        "Maximum number of documents to return",
-                                },
-                            },
-                            required: [],
+                        name: "get_documents",
+                        description: "Gets documents from Paperless NGX.",
+                        inputSchema: z.toJSONSchema(this.getDocumentSchema),
+                        annotations: {
+                            title: "get Documents",
+                            readOnlyHint: true,
+                            openWorldHint: true,
                         },
                     },
                     {
                         name: "edit_documents",
                         description:
                             "edit documents or their Metadata like Tags, Correspondents in Paperless NGX.",
-                        inputSchema: {
-                            type: "object",
-                            properties: {
-                                documentIds: {
-                                    type: "array",
-                                    items: { type: "number" },
-                                    description: "IDs of the documents to edit",
-                                },
-                                method: {
-                                    type: "string",
-                                    enum: [
-                                        "set_correspondent",
-                                        "set_document_type",
-                                        //'set_storage_path',
-                                        //'add_tag',
-                                        //'remove_tag',
-                                        "modify_tags",
-                                        //'delete',
-                                        //'reprocess',
-                                        //'merge',
-                                        //'split',
-                                        //'rotate',
-                                        //'delete_pages'
-                                    ],
-                                    description:
-                                        "Method to use for editing documents, available methods: set_correspondent, set_document_type, modify_tags",
-                                },
-                                correspondent_id: {
-                                    type: "number",
-                                    description:
-                                        "ID of the correspondent to set",
-                                },
-                                document_type_id: {
-                                    type: "number",
-                                    description:
-                                        "ID of the document type to set",
-                                },
-                                add_tags_ids: {
-                                    type: "array",
-                                    items: { type: "number" },
-                                    description: "IDs of the tags to add",
-                                },
-                                remove_tags_ids: {
-                                    type: "array",
-                                    items: { type: "number" },
-                                    description: "IDs of the tags to remove",
-                                },
-                            },
-                            required: ["documentIds", "method"],
+                        inputSchema: z.toJSONSchema(this.bulkEditSchema),
+                        annotations: {
+                            title: "Edit Documents",
+                            readOnlyHint: false,
+                            destructiveHint: true,
+                            idempotentHint: true,
+                            openWorldHint: true,
                         },
                     },
                 ] as Tool[],
@@ -327,11 +255,11 @@ export class McpOpenAPIBridge {
                 switch (request.params.name) {
                     case "list_tags":
                         return await this.paperlessAPI.listTags();
-                    case "list_correspondent":
+                    case "list_correspondents":
                         return await this.paperlessAPI.listCorrespondents();
                     case "list_document_types":
                         return await this.paperlessAPI.listDocumentTypes();
-                    case "get_document":
+                    case "get_documents":
                         args = this.getDocumentSchema.parse(
                             request.params.arguments
                         );

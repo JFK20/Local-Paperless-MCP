@@ -166,7 +166,15 @@ export class PaperlessAPI {
 
             return this.parseDocumentData(response.data);
         } catch (error: any) {
-            throw new Error(`Get document error: ${error.message}`);
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error: ${error.message}`,
+                    },
+                ],
+            };
         }
     }
 
@@ -227,7 +235,15 @@ export class PaperlessAPI {
                 ],
             };
         } catch (error: any) {
-            throw new Error(`List tags error: ${error.message}`);
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error: ${error.message}`,
+                    },
+                ],
+            };
         }
     }
 
@@ -267,7 +283,15 @@ export class PaperlessAPI {
                 ],
             };
         } catch (error: any) {
-            throw new Error(`List Correspondent error: ${error.message}`);
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error: ${error.message}`,
+                    },
+                ],
+            };
         }
     }
 
@@ -307,7 +331,15 @@ export class PaperlessAPI {
                 ],
             };
         } catch (error: any) {
-            throw new Error(`List Document Types error: ${error.message}`);
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error: ${error.message}`,
+                    },
+                ],
+            };
         }
     }
 
@@ -389,7 +421,15 @@ export class PaperlessAPI {
                 ],
             };
         } catch (error: any) {
-            throw new Error(`edit documents error: ${error.message}`);
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error: ${error.message}`,
+                    },
+                ],
+            };
         }
     }
 }

@@ -109,7 +109,7 @@ src/
 ├── index.ts             # Main entry point
 ├── mcpOpenAIBridge.ts   # MCP Server implementation
 ├── paperlessAPI.ts      # Paperless-NGX API client
-├── types.ts             # TypeScript definitions
+├── own_types.d.ts       # TypeScript definitions
 ├── startTests.ts        # Connection tests
 └── debugPoints.ts       # Debug helper functions
 ```

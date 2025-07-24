@@ -1,6 +1,6 @@
 import express from "express";
 import axios from "axios";
-import { PaperlessAPI } from "./paperlessAPI.js";
+import { PaperlessAPI } from "./paperlessAPI";
 
 export function setupDebugEndpoints(
     app: express.Application,

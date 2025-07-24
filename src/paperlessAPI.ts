@@ -8,9 +8,10 @@ import {
     PaperlessDocumentType,
     PaperlessSearchResponse,
     PaperlessTag,
-} from "./types.js";
+} from "./types/own_types";
+import { components } from "./types/gen_paperless";
 import axios from "axios";
-import { Logger } from "./logger.js";
+import { Logger } from "./logger";
 
 export class PaperlessAPI {
     public paperlessConfig: PaperlessConfig;
@@ -50,31 +51,35 @@ export class PaperlessAPI {
         Archived File Name: ${doc.archived_file_name} \n  Owner: ${doc.owner} \n  Notes: ${doc.notes || "N/A"}`;
     }
 
-    public parseDocumentData(result: PaperlessSearchResponse) {
-        const documents = result.results.map((doc: PaperlessDocument) => ({
-            id: doc.id,
-            correspondent: doc.correspondent,
-            document_type: doc.document_type,
-            storage_path: doc.storage_path,
-            title: doc.title,
-            content: doc.content,
-            tags: doc.tags,
-            created: doc.created,
-            created_date: doc.created_date,
-            modified: doc.modified,
-            added: doc.added,
-            deleted_at: doc.deleted_at,
-            archive_serial_number: doc.archive_serial_number,
-            original_file_name: doc.original_file_name,
-            archived_file_name: doc.archived_file_name,
-            owner: doc.owner,
-            user_can_change: doc.user_can_change,
-            is_shared_by_requester: doc.is_shared_by_requester,
-            notes: doc.notes,
-            custom_fields: doc.custom_fields,
-            page_count: doc.page_count,
-            mime_type: doc.mime_type,
-        }));
+    public parseDocumentData(
+        result: components["schemas"]["PaginatedDocumentList"]
+    ) {
+        const documents = result.results.map(
+            (doc: components["schemas"]["Document"]) => ({
+                id: doc.id,
+                correspondent: doc.correspondent,
+                document_type: doc.document_type,
+                storage_path: doc.storage_path,
+                title: doc.title,
+                content: doc.content,
+                tags: doc.tags,
+                created: doc.created,
+                created_date: doc.created_date,
+                modified: doc.modified,
+                added: doc.added,
+                deleted_at: doc.deleted_at,
+                archive_serial_number: doc.archive_serial_number,
+                original_file_name: doc.original_file_name,
+                archived_file_name: doc.archived_file_name,
+                owner: doc.owner,
+                user_can_change: doc.user_can_change,
+                is_shared_by_requester: doc.is_shared_by_requester,
+                notes: doc.notes,
+                custom_fields: doc.custom_fields,
+                page_count: doc.page_count,
+                mime_type: doc.mime_type,
+            })
+        );
 
         let formattedDocuments = documents.map(this.formatDocument);
 
@@ -156,13 +161,12 @@ export class PaperlessAPI {
                 params.document_type__name__icontains = document_type;
             }
 
-            const response = await axios.get<PaperlessSearchResponse>(
-                `${this.paperlessConfig.baseUrl}/api/documents/`,
-                {
-                    headers,
-                    params: params,
-                }
-            );
+            const response = await axios.get<
+                components["schemas"]["PaginatedDocumentList"]
+            >(`${this.paperlessConfig.baseUrl}/api/documents/`, {
+                headers,
+                params: params,
+            });
 
             return this.parseDocumentData(response.data);
         } catch (error: any) {
@@ -186,19 +190,20 @@ export class PaperlessAPI {
     public async listTags() {
         try {
             const headers = this.getPaperlessHeaders();
-            const response = await axios.get(
-                `${this.paperlessConfig.baseUrl}/api/tags/`,
-                {
-                    headers,
-                }
-            );
+            const response = await axios.get<
+                components["schemas"]["PaginatedTagList"]
+            >(`${this.paperlessConfig.baseUrl}/api/tags/`, {
+                headers,
+            });
 
-            let tags = response.data.results.map((tag: PaperlessTag) => ({
-                id: tag.id,
-                name: tag.name,
-                color: tag.color,
-                document_count: tag.document_count,
-            }));
+            let tags = response.data.results.map(
+                (tag: components["schemas"]["Tag"]) => ({
+                    id: tag.id,
+                    name: tag.name,
+                    color: tag.color,
+                    document_count: tag.document_count,
+                })
+            );
 
             let formattedTags = tags.map(this.formatTag);
 

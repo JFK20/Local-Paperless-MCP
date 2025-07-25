@@ -86,7 +86,6 @@ export class PaperlessAPI {
             } = args;
             const headers = this.getPaperlessHeaders();
 
-
             const params: any = {
                 page_size: limit,
             };
@@ -122,6 +121,14 @@ export class PaperlessAPI {
             if (document_type) {
                 params.document_type__name__icontains = document_type;
             }
+
+            this.logger.info(
+                `getDocumentAllParams request params: ${JSON.stringify(
+                    params,
+                    null,
+                    2
+                )}`
+            );
 
             const response = await axios.get<
                 components["schemas"]["PaginatedDocumentList"]
@@ -357,9 +364,9 @@ export class PaperlessAPI {
         }
     }
 
-    public async createCorrespondent(args: {name: string}) {
+    public async createCorrespondent(args: { name: string }) {
         try {
-            const {name} = args;
+            const { name } = args;
 
             const requestBody: components["schemas"]["CorrespondentRequest"] = {
                 name: name,
@@ -399,9 +406,9 @@ export class PaperlessAPI {
         }
     }
 
-    public async createDocumentType(args: {name: string}) {
+    public async createDocumentType(args: { name: string }) {
         try {
-            const {name} = args;
+            const { name } = args;
 
             const requestBody: components["schemas"]["DocumentTypeRequest"] = {
                 name: name,
@@ -441,9 +448,8 @@ export class PaperlessAPI {
         }
     }
 
-    public async createTag(args: {name: string, color?: string}) {
+    public async createTag(args: { name: string; color?: string }) {
         try {
-
             const { name, color } = args;
 
             const requestBody: components["schemas"]["TagRequest"] = {

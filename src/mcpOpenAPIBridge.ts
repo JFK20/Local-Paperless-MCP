@@ -38,7 +38,8 @@ export class McpOpenAPIBridge {
     public getDocumentSchema = z
         .object({
             id: z
-                .number()
+                .int()
+                .min(1)
                 .optional()
                 .describe("ID of the document to retrieve"),
             content__icontains: z
@@ -106,7 +107,7 @@ export class McpOpenAPIBridge {
 
     public bulkEditSchema = z.object({
         documentIds: z
-            .array(z.number())
+            .array(z.int().min(1))
             .describe("IDs of the documents to edit"),
         method: z.enum([
             "set_correspondent",
@@ -123,19 +124,21 @@ export class McpOpenAPIBridge {
             //'delete_pages'
         ]),
         correspondent_id: z
-            .number()
+            .int()
+            .min(1)
             .optional()
             .describe("ID of the correspondent to set"),
         document_type_id: z
-            .number()
+            .int()
+            .min(1)
             .optional()
             .describe("ID of the document type to set"),
         add_tags_ids: z
-            .array(z.number())
+            .array(z.int().min(1))
             .optional()
             .describe("IDs of the tags to add"),
         remove_tags_ids: z
-            .array(z.number())
+            .array(z.int().min(1))
             .optional()
             .describe("IDs of the tags to remove"),
         //tag_id: z.number().optional().describe("ID of the tag to set"),
@@ -175,6 +178,8 @@ export class McpOpenAPIBridge {
         name: z.string().describe("Name of the tag"),
         color: z
             .string()
+            .max(7)
+            .regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
             .optional()
             .describe("Color of the tag in hex format (e.g., #FF5733)"),
     });

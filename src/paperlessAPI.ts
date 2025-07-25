@@ -44,33 +44,6 @@ export class PaperlessAPI {
     public parseDocumentData(
         result: components["schemas"]["PaginatedDocumentList"]
     ) {
-        /*const documents = result.results.map(
-            (doc: components["schemas"]["Document"]) => ({
-                id: doc.id,
-                correspondent: doc.correspondent,
-                document_type: doc.document_type,
-                storage_path: doc.storage_path,
-                title: doc.title,
-                content: doc.content,
-                tags: doc.tags,
-                created: doc.created,
-                created_date: doc.created_date,
-                modified: doc.modified,
-                added: doc.added,
-                deleted_at: doc.deleted_at,
-                archive_serial_number: doc.archive_serial_number,
-                original_file_name: doc.original_file_name,
-                archived_file_name: doc.archived_file_name,
-                owner: doc.owner,
-                user_can_change: doc.user_can_change,
-                is_shared_by_requester: doc.is_shared_by_requester,
-                notes: doc.notes,
-                custom_fields: doc.custom_fields,
-                page_count: doc.page_count,
-                mime_type: doc.mime_type,
-            })
-        );*/
-
         let formattedDocuments = result.results.map(this.formatDocument);
 
         const searchResult: DocumentSearchResult = {
@@ -113,13 +86,12 @@ export class PaperlessAPI {
             } = args;
             const headers = this.getPaperlessHeaders();
 
-            // Build params object based on provided arguments
+
             const params: any = {
                 page_size: limit,
             };
 
-            // Add specific parameter mappings based on what's provided
-            if (id !== undefined) {
+            if (id) {
                 params.id = id;
             }
 
@@ -174,7 +146,7 @@ export class PaperlessAPI {
 
     //Helper Function to Format a Tag
     public formatTag(tag: components["schemas"]["Tag"]) {
-        return `Tag ID: ${tag.id}, Name: ${tag.name}, Color: ${tag.color}, Document with this Tag: ${tag.document_count}`;
+        return `Tag ID: ${tag.id}, Name: ${tag.name}, Color: ${tag.color}, Document with this Tag: ${tag.document_count ?? 0}`;
     }
 
     public async listTags() {
@@ -185,15 +157,6 @@ export class PaperlessAPI {
             >(`${this.paperlessConfig.baseUrl}/api/tags/`, {
                 headers,
             });
-
-            /*let tags = response.data.results.map(
-                (tag: components["schemas"]["Tag"]) => ({
-                    id: tag.id,
-                    name: tag.name,
-                    color: tag.color,
-                    document_count: tag.document_count,
-                })
-            );*/
 
             let formattedTags = response.data.results.map(this.formatTag);
 
@@ -222,7 +185,7 @@ export class PaperlessAPI {
     public formatCorrespondent(
         correspondent: components["schemas"]["Correspondent"]
     ) {
-        return `Tag ID: ${correspondent.id}, Name: ${correspondent.name}, Document with this Tag: ${correspondent.document_count}`;
+        return `Tag ID: ${correspondent.id}, Name: ${correspondent.name}, Document with this Tag: ${correspondent.document_count ?? 0}`;
     }
 
     public async listCorrespondents() {
@@ -233,14 +196,6 @@ export class PaperlessAPI {
             >(`${this.paperlessConfig.baseUrl}/api/correspondents/`, {
                 headers,
             });
-
-            /*let correspondent = response.data.results.map(
-                (correspondent: PaperlessCorrespondent) => ({
-                    id: correspondent.id,
-                    name: correspondent.name,
-                    document_count: correspondent.document_count,
-                })
-            );*/
 
             let formattedCorrespondents = response.data.results.map(
                 this.formatCorrespondent
@@ -271,7 +226,7 @@ export class PaperlessAPI {
     public formatDocumentType(
         documentType: components["schemas"]["DocumentType"]
     ) {
-        return `DocumentType ID: ${documentType.id}, Name: ${documentType.name}, Document with this Tag: ${documentType.document_count}`;
+        return `DocumentType ID: ${documentType.id}, Name: ${documentType.name}, Document with this Tag: ${documentType.document_count ?? 0}`;
     }
 
     public async listDocumentTypes() {
@@ -282,14 +237,6 @@ export class PaperlessAPI {
             >(`${this.paperlessConfig.baseUrl}/api/document_types/`, {
                 headers,
             });
-
-            /*let documentTypes = response.data.results.map(
-                (type: PaperlessDocumentType) => ({
-                    id: type.id,
-                    name: type.name,
-                    document_count: type.document_count,
-                })
-            );*/
 
             let formattedCorrespondents = response.data.results.map(
                 this.formatDocumentType
@@ -404,6 +351,135 @@ export class PaperlessAPI {
                     {
                         type: "text",
                         text: `Error: ${error.message}`,
+                    },
+                ],
+            };
+        }
+    }
+
+    public async createCorrespondent(args: {name: string}) {
+        try {
+            const {name} = args;
+
+            const requestBody: components["schemas"]["CorrespondentRequest"] = {
+                name: name,
+            };
+
+            this.logger.info(
+                `create correspondent request body: ${JSON.stringify(requestBody, null, 2)}`
+            );
+
+            const headers = this.getPaperlessHeaders();
+            const response = await axios.post<
+                components["schemas"]["Correspondent"]
+            >(
+                `${this.paperlessConfig.baseUrl}/api/correspondents/`,
+                requestBody,
+                { headers }
+            );
+
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Correspondent created successfully: ${this.formatCorrespondent(response.data)}`,
+                    },
+                ],
+            };
+        } catch (error: any) {
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error creating correspondent: ${error.message}`,
+                    },
+                ],
+            };
+        }
+    }
+
+    public async createDocumentType(args: {name: string}) {
+        try {
+            const {name} = args;
+
+            const requestBody: components["schemas"]["DocumentTypeRequest"] = {
+                name: name,
+            };
+
+            this.logger.info(
+                `create document type request body: ${JSON.stringify(requestBody, null, 2)}`
+            );
+
+            const headers = this.getPaperlessHeaders();
+            const response = await axios.post<
+                components["schemas"]["DocumentType"]
+            >(
+                `${this.paperlessConfig.baseUrl}/api/document_types/`,
+                requestBody,
+                { headers }
+            );
+
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Document Type created successfully: ${this.formatDocumentType(response.data)}`,
+                    },
+                ],
+            };
+        } catch (error: any) {
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error creating document type: ${error.message}`,
+                    },
+                ],
+            };
+        }
+    }
+
+    public async createTag(args: {name: string, color?: string}) {
+        try {
+
+            const { name, color } = args;
+
+            const requestBody: components["schemas"]["TagRequest"] = {
+                name: name,
+            };
+
+            if (color) {
+                requestBody.color = color;
+            }
+
+            this.logger.info(
+                `create Tag request body: ${JSON.stringify(requestBody, null, 2)}`
+            );
+
+            const headers = this.getPaperlessHeaders();
+            const response = await axios.post<components["schemas"]["Tag"]>(
+                `${this.paperlessConfig.baseUrl}/api/tags/`,
+                requestBody,
+                { headers }
+            );
+
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: `Tag created successfully: ${this.formatTag(response.data)}`,
+                    },
+                ],
+            };
+        } catch (error: any) {
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error creating tag: ${error.message}`,
                     },
                 ],
             };

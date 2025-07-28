@@ -154,7 +154,7 @@ export class PaperlessAPI {
     public async getAllDocuments() {
         try {
             const headers = this.getPaperlessHeaders();
-            const response = await axios.get<PaperlessSearchResponse>(
+            const response = await axios.get<components["schemas"]["PaginatedDocumentList"]>(
                 `${this.paperlessConfig.baseUrl}/api/documents/`,
                 {
                     headers,
@@ -162,7 +162,7 @@ export class PaperlessAPI {
             );
 
             const documents = response.data.results.map(
-                (doc: PaperlessDocument) => ({
+                (doc: components["schemas"]["Document"]) => ({
                     id: doc.id,
                     document_type: doc.document_type,
                     title: doc.title,

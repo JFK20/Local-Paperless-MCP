@@ -30,6 +30,7 @@ export class McpOpenAPIBridge {
             {
                 capabilities: {
                     tools: {},
+                    resources: {},
                 },
             }
         );
@@ -237,16 +238,6 @@ export class McpOpenAPIBridge {
                         },
                     },
                     {
-                        name: "get_documents",
-                        description: "Gets documents from Paperless NGX.",
-                        inputSchema: z.toJSONSchema(this.getDocumentSchema),
-                        annotations: {
-                            title: "get Documents",
-                            readOnlyHint: true,
-                            openWorldHint: true,
-                        },
-                    },
-                    {
                         name: "edit_documents",
                         description:
                             "edit documents or their Metadata like Tags, Correspondents in Paperless NGX.",
@@ -321,13 +312,6 @@ export class McpOpenAPIBridge {
                         return await this.paperlessAPI.listCorrespondents();
                     case "list_document_types":
                         return await this.paperlessAPI.listDocumentTypes();
-                    case "get_documents":
-                        args = this.getDocumentSchema.parse(
-                            request.params.arguments
-                        );
-                        return await this.paperlessAPI.getDocumentAllParams(
-                            args
-                        );
                     case "edit_documents":
                         args = this.bulkEditSchema.parse(
                             request.params.arguments

@@ -30,7 +30,6 @@ export class McpOpenAPIBridge {
             {
                 capabilities: {
                     tools: {},
-                    resources: {},
                 },
             }
         );
@@ -42,7 +41,8 @@ export class McpOpenAPIBridge {
     public getDocumentSchema = z
         .object({
             id: z
-                .number()
+                .int()
+                .min(1)
                 .optional()
                 .describe("ID of the document to retrieve"),
             content__icontains: z
@@ -110,7 +110,7 @@ export class McpOpenAPIBridge {
 
     public bulkEditSchema = z.object({
         documentIds: z
-            .array(z.number())
+            .array(z.int().min(1))
             .describe("IDs of the documents to edit"),
         method: z.enum([
             "set_correspondent",
@@ -127,19 +127,21 @@ export class McpOpenAPIBridge {
             //'delete_pages'
         ]),
         correspondent_id: z
-            .number()
+            .int()
+            .min(1)
             .optional()
             .describe("ID of the correspondent to set"),
         document_type_id: z
-            .number()
+            .int()
+            .min(1)
             .optional()
             .describe("ID of the document type to set"),
         add_tags_ids: z
-            .array(z.number())
+            .array(z.int().min(1))
             .optional()
             .describe("IDs of the tags to add"),
         remove_tags_ids: z
-            .array(z.number())
+            .array(z.int().min(1))
             .optional()
             .describe("IDs of the tags to remove"),
         //tag_id: z.number().optional().describe("ID of the tag to set"),
@@ -165,6 +167,24 @@ export class McpOpenAPIBridge {
         //delete_originals: z.boolean().optional(),
         //pages: z.string().optional(),
         //degrees: z.number().optional()
+    });
+
+    public createCorrespondentSchema = z.object({
+        name: z.string().describe("Name of the correspondent"),
+    });
+
+    public createDocumentTypeSchema = z.object({
+        name: z.string().describe("Name of the document type"),
+    });
+
+    public createTagSchema = z.object({
+        name: z.string().describe("Name of the tag"),
+        color: z
+            .string()
+            .max(7)
+            .regex(/^#(?:[0-9a-fA-F]{3}){1,2}$/)
+            .optional()
+            .describe("Color of the tag in hex format (e.g., #FF5733)"),
     });
 
     private setupMCPTools() {
@@ -239,6 +259,48 @@ export class McpOpenAPIBridge {
                             openWorldHint: true,
                         },
                     },
+                    {
+                        name: "create_correspondent",
+                        description:
+                            "Creates a new correspondent in Paperless NGX.",
+                        inputSchema: z.toJSONSchema(
+                            this.createCorrespondentSchema
+                        ),
+                        annotations: {
+                            title: "Create Correspondent",
+                            readOnlyHint: false,
+                            destructiveHint: false,
+                            idempotentHint: false,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
+                        name: "create_document_type",
+                        description:
+                            "Creates a new document type in Paperless NGX.",
+                        inputSchema: z.toJSONSchema(
+                            this.createDocumentTypeSchema
+                        ),
+                        annotations: {
+                            title: "Create Document Type",
+                            readOnlyHint: false,
+                            destructiveHint: false,
+                            idempotentHint: false,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
+                        name: "create_tag",
+                        description: "Creates a new tag in Paperless NGX.",
+                        inputSchema: z.toJSONSchema(this.createTagSchema),
+                        annotations: {
+                            title: "Create Tag",
+                            readOnlyHint: false,
+                            destructiveHint: false,
+                            idempotentHint: false,
+                            openWorldHint: true,
+                        },
+                    },
                 ] as Tool[],
             };
         });
@@ -271,6 +333,23 @@ export class McpOpenAPIBridge {
                             request.params.arguments
                         );
                         return await this.paperlessAPI.bulkEditDocuments(args);
+                    case "create_correspondent":
+                        args = this.createCorrespondentSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.createCorrespondent(
+                            args
+                        );
+                    case "create_document_type":
+                        args = this.createDocumentTypeSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.createDocumentType(args);
+                    case "create_tag":
+                        args = this.createTagSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.createTag(args);
                     default:
                         this.logger.error(
                             `Unknown tool: ${request.params.name}`
@@ -352,6 +431,10 @@ export class McpOpenAPIBridge {
         const paperlessConnected = await testPaperlessConnection(
             this.paperlessAPI
         );
+
+        if (paperlessConnected) {
+            this.logger.info("Paperless connection started");
+        }
 
         if (!paperlessConnected) {
             this.logger.error(

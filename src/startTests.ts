@@ -14,7 +14,6 @@ export async function testPaperlessConnection(
         await axios.get(`${paperlessAPI.paperlessConfig.baseUrl}/api/`, {
             headers,
         });
-        console.log("Paperless NGX connection successful");
         return true;
     } catch (error: any) {
         console.error("Paperless NGX connection failed:", error.message);

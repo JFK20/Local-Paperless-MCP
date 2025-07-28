@@ -11,6 +11,9 @@ export class Logger {
     }
 
     public info(message: string, data?: any) {
+        if (parseInt(process.env.LOGGER_LEVEL) < 1) {
+            return;
+        }
         const timestamp = new Date().toISOString();
         const logMessage = `[${timestamp}] INFO: ${message}`;
 
@@ -33,26 +36,16 @@ export class Logger {
     }
 
     public debug(message: string, data?: any) {
-        if (process.env.NODE_ENV === "development") {
-            const timestamp = new Date().toISOString();
-            const logMessage = `[${timestamp}] DEBUG: ${message}`;
-
-            if (data) {
-                process.stderr.write(
-                    `${logMessage} ${JSON.stringify(data, null, 2)}\n`
-                );
-            } else {
-                process.stderr.write(`${logMessage}\n`);
-            }
+        if (parseInt(process.env.LOGGER_LEVEL) < 2) {
+            return;
         }
-    }
-
-    public warn(message: string, data?: any) {
         const timestamp = new Date().toISOString();
-        const logMessage = `[${timestamp}] WARN: ${message}`;
+        const logMessage = `[${timestamp}] DEBUG: ${message}`;
 
         if (data) {
-            process.stderr.write(`${logMessage} ${JSON.stringify(data)}\n`);
+            process.stderr.write(
+                `${logMessage} ${JSON.stringify(data, null, 2)}\n`
+            );
         } else {
             process.stderr.write(`${logMessage}\n`);
         }

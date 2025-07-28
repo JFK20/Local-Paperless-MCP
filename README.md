@@ -41,6 +41,9 @@ PAPERLESS_TOKEN=your-paperless-api-token
 
 # MCPO Configuration
 MCPO_API_KEY=your-secret-key
+
+# Logging Configuration
+LOGGER_LEVEL=1
 ```
 
 ### 3. Start with Docker Compose:
@@ -48,7 +51,15 @@ MCPO_API_KEY=your-secret-key
 docker-compose up --build
 ```
 
+## Logging Configuration
 
+Supports different logging levels controlled by the `LOGGER_LEVEL` environment variable:
+
+- **0**: No logging (except errors which are always shown)
+- **1**: INFO level and above (default) - Shows general information and errors
+- **2**: DEBUG level and above - Shows detailed debugging information, INFO messages, and errors
+
+Log levels work hierarchically — setting level 2 will show DEBUG, INFO, and ERROR messages, while level 1 shows only INFO and ERROR messages.
 
 ### Creating Paperless-NGX API Token
 
@@ -63,40 +74,16 @@ docker-compose up --build
 
 The server provides the following MCP tools:
 
-#### `get_documents`
-Searches documents in Paperless-NGX based on title.
+#### Available Tools
 
-**Parameters:**
-- `title` (required): Title of the documents to search for
-- `limit` (optional): Maximum number of documents to return (default: 10)
-
-
-#### `list_tags`
-Lists all available tags in Paperless-NGX.
-
-**Parameters:**
-- No parameters required
-
-#### `get_documents_by_tag`
-Searches documents in Paperless-NGX based on tag name.
-
-**Parameters:**
-- `tag` (required): Name of the tag to search for
-- `limit` (optional): Maximum number of documents to return (default: 10)
-
-#### `list_correspondent`
-Retrieves a list of all correspondents in Paperless-NGX.
-
-**Parameters:**
-- No parameters required
-
-
-#### `get_document_by_correspondent`
-Searches documents in Paperless-NGX based on correspondent name.
-
-**Parameters:**
-- `correspondent` (required): Name of the correspondent to search for
-- `limit` (optional): Maximum number of documents to return (default: 10)
+- **`list_tags`** - Lists all tags in Paperless NGX
+- **`list_correspondents`** - Lists all correspondents in Paperless NGX  
+- **`list_document_types`** - Lists all document types in Paperless NGX
+- **`get_documents`** - Gets documents from Paperless NGX with various search filters
+- **`edit_documents`** - Edit documents or their metadata like tags, correspondents in Paperless NGX
+- **`create_correspondent`** - Creates a new correspondent in Paperless NGX
+- **`create_document_type`** - Creates a new document type in Paperless NGX
+- **`create_tag`** - Creates a new tag in Paperless NGX
 
 ### Integration with AI Models
 
@@ -109,7 +96,7 @@ src/
 ├── index.ts             # Main entry point
 ├── mcpOpenAPIBridge.ts   # MCP Server implementation
 ├── paperlessAPI.ts      # Paperless-NGX API client
-├── types.ts             # TypeScript definitions
+├── own_types.d.ts       # TypeScript definitions
 ├── startTests.ts        # Connection tests
 └── debugPoints.ts       # Debug helper functions
 ```

@@ -47,7 +47,7 @@ export class PaperlessAPI {
         let formattedDocuments = result.results.map(this.formatDocument);
 
         const searchResult: DocumentSearchResult = {
-            total: result.count,
+            total: result.results.length,
             documents: formattedDocuments,
         };
 
@@ -72,6 +72,7 @@ export class PaperlessAPI {
         document_type?: string;
         limit?: number;
     }) {
+        this.logger.debug("getDocumentAllParams called with args", args);
         try {
             const {
                 id,

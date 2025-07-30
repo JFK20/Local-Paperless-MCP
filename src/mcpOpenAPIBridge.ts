@@ -74,7 +74,6 @@ export class McpOpenAPIBridge {
             limit: z
                 .number()
                 .optional()
-                .default(10)
                 .describe("Maximum number of documents to return"),
         })
         .refine(
@@ -321,6 +320,10 @@ export class McpOpenAPIBridge {
                     case "get_documents":
                         args = this.getDocumentSchema.parse(
                             request.params.arguments
+                        );
+                        this.logger.debug(
+                            "Parsed arguments for get_documents",
+                            args
                         );
                         return await this.paperlessAPI.getDocumentAllParams(
                             args

@@ -241,7 +241,9 @@ export class McpOpenAPIBridge {
                         name: "search_document_by_id",
                         description:
                             "Searches a specific document by ID from Paperless NGX",
-                        inputSchema: z.toJSONSchema(this.searchDocumentByIdSchema),
+                        inputSchema: z.toJSONSchema(
+                            this.searchDocumentByIdSchema
+                        ),
                         annotations: {
                             title: "Get Document by ID",
                             readOnlyHint: true,
@@ -402,26 +404,54 @@ export class McpOpenAPIBridge {
                     case "list_document_types":
                         return await this.paperlessAPI.listDocumentTypes();
                     case "search_document_by_id":
-                        args = this.searchDocumentByIdSchema.parse(request.params.arguments);
-                        return await this.paperlessAPI.getDocumentAllParams(args);
+                        args = this.searchDocumentByIdSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.getDocumentAllParams(
+                            args
+                        );
                     case "search_documents_by_content":
-                        args = this.searchDocumentsByContentSchema.parse(request.params.arguments);
-                        return await this.paperlessAPI.getDocumentAllParams(args);
+                        args = this.searchDocumentsByContentSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.getDocumentAllParams(
+                            args
+                        );
                     case "search_documents_by_title":
-                        args = this.searchDocumentsByTitleSchema.parse(request.params.arguments);
-                        return await this.paperlessAPI.getDocumentAllParams(args);
+                        args = this.searchDocumentsByTitleSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.getDocumentAllParams(
+                            args
+                        );
                     case "search_documents_by_tag":
-                        args = this.searchDocumentsByTagSchema.parse(request.params.arguments);
-                        return await this.paperlessAPI.getDocumentAllParams(args);
+                        args = this.searchDocumentsByTagSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.getDocumentAllParams(
+                            args
+                        );
                     case "search_documents_by_correspondent":
-                        args = this.searchDocumentsByCorrespondentSchema.parse(request.params.arguments);
-                        return await this.paperlessAPI.getDocumentAllParams(args);
+                        args = this.searchDocumentsByCorrespondentSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.getDocumentAllParams(
+                            args
+                        );
                     case "search_documents_by_date_range":
-                        args = this.searchDocumentsByDateRangeSchema.parse(request.params.arguments);
-                        return await this.paperlessAPI.getDocumentAllParams(args);
+                        args = this.searchDocumentsByDateRangeSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.getDocumentAllParams(
+                            args
+                        );
                     case "search_documents_by_type":
-                        args = this.searchDocumentsByTypeSchema.parse(request.params.arguments);
-                        return await this.paperlessAPI.getDocumentAllParams(args);
+                        args = this.searchDocumentsByTypeSchema.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.getDocumentAllParams(
+                            args
+                        );
                     case "edit_documents":
                         args = this.bulkEditSchema.parse(
                             request.params.arguments

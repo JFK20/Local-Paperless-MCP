@@ -35,7 +35,7 @@ export class McpOpenAPIBridge {
         this.setupMCPHandlers();
     }
 
-    public getDocumentByIdSchema = z.object({
+    public searchDocumentByIdSchema = z.object({
         id: z.int().min(1).describe("ID of the document to retrieve"),
     });
 
@@ -238,10 +238,10 @@ export class McpOpenAPIBridge {
                         },
                     },
                     {
-                        name: "get_document_by_id",
+                        name: "search_document_by_id",
                         description:
-                            "Gets a specific document by ID from Paperless NGX",
-                        inputSchema: z.toJSONSchema(this.getDocumentByIdSchema),
+                            "Searches a specific document by ID from Paperless NGX",
+                        inputSchema: z.toJSONSchema(this.searchDocumentByIdSchema),
                         annotations: {
                             title: "Get Document by ID",
                             readOnlyHint: true,
@@ -401,8 +401,8 @@ export class McpOpenAPIBridge {
                         return await this.paperlessAPI.listCorrespondents();
                     case "list_document_types":
                         return await this.paperlessAPI.listDocumentTypes();
-                    case "get_document_by_id":
-                        args = this.getDocumentByIdSchema.parse(request.params.arguments);
+                    case "search_document_by_id":
+                        args = this.searchDocumentByIdSchema.parse(request.params.arguments);
                         return await this.paperlessAPI.getDocumentAllParams(args);
                     case "search_documents_by_content":
                         args = this.searchDocumentsByContentSchema.parse(request.params.arguments);

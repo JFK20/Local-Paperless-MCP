@@ -35,74 +35,79 @@ export class McpOpenAPIBridge {
         this.setupMCPHandlers();
     }
 
-    public getDocumentSchema = z
+    public getDocumentByIdSchema = z.object({
+        id: z.int().min(1).describe("ID of the document to retrieve"),
+    });
+
+    public searchDocumentsByContentSchema = z.object({
+        content__icontains: z
+            .string()
+            .describe("Content to search for in the document"),
+        limit: z
+            .number()
+            .optional()
+            .describe("Maximum number of documents to return"),
+    });
+
+    public searchDocumentsByTitleSchema = z.object({
+        title: z.string().describe("Title of the documents to find"),
+        limit: z
+            .number()
+            .optional()
+            .describe("Maximum number of documents to return"),
+    });
+
+    public searchDocumentsByTagSchema = z.object({
+        tag: z.string().describe("Tag of the documents to find"),
+        limit: z
+            .number()
+            .optional()
+            .describe("Maximum number of documents to return"),
+    });
+
+    public searchDocumentsByCorrespondentSchema = z.object({
+        correspondent: z
+            .string()
+            .describe("Correspondent of the documents to find"),
+        limit: z
+            .number()
+            .optional()
+            .describe("Maximum number of documents to return"),
+    });
+
+    public searchDocumentsByDateRangeSchema = z
         .object({
-            id: z
-                .int()
-                .min(1)
-                .optional()
-                .describe("ID of the document to retrieve"),
-            content__icontains: z
-                .string()
-                .optional()
-                .describe("Content to search for in the document"),
-            title: z
-                .string()
-                .optional()
-                .describe("title of the documents to find"),
-            tag: z.string().optional().describe("tag of the documents to find"),
-            correspondent: z
-                .string()
-                .optional()
-                .describe("correspondent of the documents to find"),
             created__date__gte: z
                 .string()
                 .optional()
                 .describe(
-                    "creation date greater than or equal to the specified date"
+                    "Creation date greater than or equal to the specified date"
                 ),
             created__date__lte: z
                 .string()
                 .optional()
                 .describe(
-                    "creation date lesser than or equal to the specified date"
+                    "Creation date lesser than or equal to the specified date"
                 ),
-            document_type: z
-                .string()
-                .optional()
-                .describe("Document type to search for"),
             limit: z
                 .number()
                 .optional()
                 .describe("Maximum number of documents to return"),
         })
         .refine(
-            (data) => {
-                const hasId = data.id !== undefined;
-                const hasContent = data.content__icontains !== undefined;
-                const hasTitle = data.title !== undefined;
-                const hasTag = data.tag !== undefined;
-                const hasCorrespondent = data.correspondent !== undefined;
-                const hasCreatedDateGte = data.created__date__gte !== undefined;
-                const hasCreatedDateLte = data.created__date__lte !== undefined;
-                const hasDocumentTypeName = data.document_type !== undefined;
-
-                return (
-                    hasId ||
-                    hasContent ||
-                    hasTitle ||
-                    hasTag ||
-                    hasCorrespondent ||
-                    hasCreatedDateGte ||
-                    hasCreatedDateLte ||
-                    hasDocumentTypeName
-                );
-            },
-            {
-                message:
-                    "At least one parameter (id, content__icontains, title, tag, correspondent, created__date__gte, created__date__lte, document_type__name__icontains) must be provided",
-            }
+            (data) =>
+                data.created__date__gte !== undefined ||
+                data.created__date__lte !== undefined,
+            { message: "At least one date parameter must be provided" }
         );
+
+    public searchDocumentsByTypeSchema = z.object({
+        document_type: z.string().describe("Document type to search for"),
+        limit: z
+            .number()
+            .optional()
+            .describe("Maximum number of documents to return"),
+    });
 
     public bulkEditSchema = z.object({
         documentIds: z
@@ -233,11 +238,90 @@ export class McpOpenAPIBridge {
                         },
                     },
                     {
-                        name: "get_documents",
-                        description: "Gets documents from Paperless NGX.",
-                        inputSchema: z.toJSONSchema(this.getDocumentSchema),
+                        name: "get_document_by_id",
+                        description:
+                            "Gets a specific document by ID from Paperless NGX",
+                        inputSchema: z.toJSONSchema(this.getDocumentByIdSchema),
                         annotations: {
-                            title: "get Documents",
+                            title: "Get Document by ID",
+                            readOnlyHint: true,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
+                        name: "search_documents_by_content",
+                        description:
+                            "Searches documents by content in Paperless NGX",
+                        inputSchema: z.toJSONSchema(
+                            this.searchDocumentsByContentSchema
+                        ),
+                        annotations: {
+                            title: "Search Documents by Content",
+                            readOnlyHint: true,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
+                        name: "search_documents_by_title",
+                        description:
+                            "Searches documents by title in Paperless NGX",
+                        inputSchema: z.toJSONSchema(
+                            this.searchDocumentsByTitleSchema
+                        ),
+                        annotations: {
+                            title: "Search Documents by Title",
+                            readOnlyHint: true,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
+                        name: "search_documents_by_tag",
+                        description:
+                            "Searches documents by tag in Paperless NGX",
+                        inputSchema: z.toJSONSchema(
+                            this.searchDocumentsByTagSchema
+                        ),
+                        annotations: {
+                            title: "Search Documents by Tag",
+                            readOnlyHint: true,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
+                        name: "search_documents_by_correspondent",
+                        description:
+                            "Searches documents by correspondent in Paperless NGX",
+                        inputSchema: z.toJSONSchema(
+                            this.searchDocumentsByCorrespondentSchema
+                        ),
+                        annotations: {
+                            title: "Search Documents by Correspondent",
+                            readOnlyHint: true,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
+                        name: "search_documents_by_date_range",
+                        description:
+                            "Searches documents by creation date range in Paperless NGX",
+                        inputSchema: z.toJSONSchema(
+                            this.searchDocumentsByDateRangeSchema
+                        ),
+                        annotations: {
+                            title: "Search Documents by Date Range",
+                            readOnlyHint: true,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
+                        name: "search_documents_by_type",
+                        description:
+                            "Searches documents by document type in Paperless NGX",
+                        inputSchema: z.toJSONSchema(
+                            this.searchDocumentsByTypeSchema
+                        ),
+                        annotations: {
+                            title: "Search Documents by Type",
                             readOnlyHint: true,
                             openWorldHint: true,
                         },
@@ -317,17 +401,27 @@ export class McpOpenAPIBridge {
                         return await this.paperlessAPI.listCorrespondents();
                     case "list_document_types":
                         return await this.paperlessAPI.listDocumentTypes();
-                    case "get_documents":
-                        args = this.getDocumentSchema.parse(
-                            request.params.arguments
-                        );
-                        this.logger.debug(
-                            "Parsed arguments for get_documents",
-                            args
-                        );
-                        return await this.paperlessAPI.getDocumentAllParams(
-                            args
-                        );
+                    case "get_document_by_id":
+                        args = this.getDocumentByIdSchema.parse(request.params.arguments);
+                        return await this.paperlessAPI.getDocumentAllParams(args);
+                    case "search_documents_by_content":
+                        args = this.searchDocumentsByContentSchema.parse(request.params.arguments);
+                        return await this.paperlessAPI.getDocumentAllParams(args);
+                    case "search_documents_by_title":
+                        args = this.searchDocumentsByTitleSchema.parse(request.params.arguments);
+                        return await this.paperlessAPI.getDocumentAllParams(args);
+                    case "search_documents_by_tag":
+                        args = this.searchDocumentsByTagSchema.parse(request.params.arguments);
+                        return await this.paperlessAPI.getDocumentAllParams(args);
+                    case "search_documents_by_correspondent":
+                        args = this.searchDocumentsByCorrespondentSchema.parse(request.params.arguments);
+                        return await this.paperlessAPI.getDocumentAllParams(args);
+                    case "search_documents_by_date_range":
+                        args = this.searchDocumentsByDateRangeSchema.parse(request.params.arguments);
+                        return await this.paperlessAPI.getDocumentAllParams(args);
+                    case "search_documents_by_type":
+                        args = this.searchDocumentsByTypeSchema.parse(request.params.arguments);
+                        return await this.paperlessAPI.getDocumentAllParams(args);
                     case "edit_documents":
                         args = this.bulkEditSchema.parse(
                             request.params.arguments

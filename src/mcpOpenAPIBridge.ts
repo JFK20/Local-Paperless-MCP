@@ -313,6 +313,7 @@ export class McpOpenAPIBridge {
                 });
 
                 let args;
+                let result;
                 switch (request.params.name) {
                     case "list_tags":
                         return await this.paperlessAPI.listTags();
@@ -340,19 +341,25 @@ export class McpOpenAPIBridge {
                         args = this.createCorrespondentSchema.parse(
                             request.params.arguments
                         );
-                        return await this.paperlessAPI.createCorrespondent(
+                        result = await this.paperlessAPI.createCorrespondent(
                             args
                         );
+                        await this.cachedMetadata.refresh(this.paperlessAPI)
+                        return result;
                     case "create_document_type":
                         args = this.createDocumentTypeSchema.parse(
                             request.params.arguments
                         );
-                        return await this.paperlessAPI.createDocumentType(args);
+                        result = await this.paperlessAPI.createDocumentType(args);
+                        await this.cachedMetadata.refresh(this.paperlessAPI)
+                        return result;
                     case "create_tag":
                         args = this.createTagSchema.parse(
                             request.params.arguments
                         );
-                        return await this.paperlessAPI.createTag(args);
+                        result = await this.paperlessAPI.createTag(args);
+                        await this.cachedMetadata.refresh(this.paperlessAPI)
+                        return result;
                     default:
                         this.logger.error(
                             `Unknown tool: ${request.params.name}`

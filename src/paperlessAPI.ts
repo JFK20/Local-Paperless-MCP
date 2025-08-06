@@ -2,10 +2,12 @@ import { DocumentSearchResult, PaperlessConfig } from "./types/own_types";
 import { components } from "./types/gen_paperless";
 import axios from "axios";
 import { Logger } from "./logger.js";
+import { CachedMetadata } from "./cachedMetadata.js";
 
 export class PaperlessAPI {
     public paperlessConfig: PaperlessConfig;
     private logger: Logger;
+    private cachedMetadata: CachedMetadata;
 
     constructor() {
         this.paperlessConfig = {
@@ -20,6 +22,7 @@ export class PaperlessAPI {
         }
 
         this.logger = Logger.getInstance();
+        this.cachedMetadata = CachedMetadata.getInstance();
     }
 
     public getPaperlessHeaders() {
@@ -35,11 +38,19 @@ export class PaperlessAPI {
     }
 
     //Helper Function to Format a Document
-    public formatDocument(doc: components["schemas"]["Document"]) {
-        return `Title: ${doc.title} ID: ${doc.id} \n  Content: ${doc.content}... \n  Tags: ${doc.tags.join(", ")}\n 
-        Correspondent: ${doc.correspondent || "N/A"} \n  Document Type: ${doc.document_type || "N/A"} \n created_date: ${doc.created_date} \n 
-        Archived File Name: ${doc.archived_file_name} \n  Owner: ${doc.owner} \n  Notes: ${doc.notes || "N/A"}`;
-    }
+    public formatDocument = (doc: components["schemas"]["Document"]) => {
+        const tags = this.cachedMetadata.getTagsByIds(doc.tags);
+        const correspondent = this.cachedMetadata.getCorrespondentById(
+            doc.correspondent
+        );
+        const documentType = this.cachedMetadata.getDocumentTypeById(
+            doc.document_type
+        );
+
+        return `Title: ${doc.title} ID: ${doc.id} \n  Content: ${doc.content}... \n  Tags: ${tags?.map((t) => t.name).join(", ") || "N/A"}\n
+    Correspondent: ${correspondent?.name || "N/A"} \n  Document Type: ${documentType?.name || "N/A"} \n created_date: ${doc.created_date} \n
+    Archived File Name: ${doc.archived_file_name} \n  Owner: ${doc.owner} \n  Notes: ${doc.notes || "N/A"}`;
+    };
 
     public parseDocumentData(
         result: components["schemas"]["PaginatedDocumentList"]
@@ -159,14 +170,8 @@ export class PaperlessAPI {
 
     public async listTags() {
         try {
-            const headers = this.getPaperlessHeaders();
-            const response = await axios.get<
-                components["schemas"]["PaginatedTagList"]
-            >(`${this.paperlessConfig.baseUrl}/api/tags/`, {
-                headers,
-            });
-
-            let formattedTags = response.data.results.map(this.formatTag);
+            let tags = await this.listTagsRaw();
+            let formattedTags = tags.results.map(this.formatTag);
 
             return {
                 content: [
@@ -189,6 +194,16 @@ export class PaperlessAPI {
         }
     }
 
+    public async listTagsRaw() {
+        const headers = this.getPaperlessHeaders();
+        const response = await axios.get<
+            components["schemas"]["PaginatedTagList"]
+        >(`${this.paperlessConfig.baseUrl}/api/tags/`, {
+            headers,
+        });
+        return response.data;
+    }
+
     //Helper Function to Format a Tag
     public formatCorrespondent(
         correspondent: components["schemas"]["Correspondent"]
@@ -198,14 +213,8 @@ export class PaperlessAPI {
 
     public async listCorrespondents() {
         try {
-            const headers = this.getPaperlessHeaders();
-            const response = await axios.get<
-                components["schemas"]["PaginatedCorrespondentList"]
-            >(`${this.paperlessConfig.baseUrl}/api/correspondents/`, {
-                headers,
-            });
-
-            let formattedCorrespondents = response.data.results.map(
+            let correspondents = await this.listCorrespondentsRaw();
+            let formattedCorrespondents = correspondents.results.map(
                 this.formatCorrespondent
             );
 
@@ -230,6 +239,16 @@ export class PaperlessAPI {
         }
     }
 
+    public async listCorrespondentsRaw() {
+        const headers = this.getPaperlessHeaders();
+        const response = await axios.get<
+            components["schemas"]["PaginatedCorrespondentList"]
+        >(`${this.paperlessConfig.baseUrl}/api/correspondents/`, {
+            headers,
+        });
+        return response.data;
+    }
+
     //Helper Function to Format a DocumentType
     public formatDocumentType(
         documentType: components["schemas"]["DocumentType"]
@@ -239,14 +258,9 @@ export class PaperlessAPI {
 
     public async listDocumentTypes() {
         try {
-            const headers = this.getPaperlessHeaders();
-            const response = await axios.get<
-                components["schemas"]["PaginatedDocumentTypeList"]
-            >(`${this.paperlessConfig.baseUrl}/api/document_types/`, {
-                headers,
-            });
+            let documentTypes = await this.listDocumentTypesRaw();
 
-            let formattedCorrespondents = response.data.results.map(
+            let formattedCorrespondents = documentTypes.results.map(
                 this.formatDocumentType
             );
 
@@ -269,6 +283,16 @@ export class PaperlessAPI {
                 ],
             };
         }
+    }
+
+    public async listDocumentTypesRaw() {
+        const headers = this.getPaperlessHeaders();
+        const response = await axios.get<
+            components["schemas"]["PaginatedDocumentTypeList"]
+        >(`${this.paperlessConfig.baseUrl}/api/document_types/`, {
+            headers,
+        });
+        return response.data;
     }
 
     public async bulkEditDocuments(args: {

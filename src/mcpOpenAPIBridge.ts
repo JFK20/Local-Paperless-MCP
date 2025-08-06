@@ -10,15 +10,18 @@ import { Logger } from "./logger.js";
 import "dotenv/config";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import z from "zod";
+import { CachedMetadata } from "./cachedMetadata.js";
 
 export class McpOpenAPIBridge {
     private server: Server;
     private paperlessAPI: PaperlessAPI;
     private logger: Logger;
+    private cachedMetadata: CachedMetadata;
 
     constructor() {
         this.paperlessAPI = new PaperlessAPI();
         this.logger = Logger.getInstance();
+        this.cachedMetadata = CachedMetadata.getInstance();
 
         this.server = new Server(
             {
@@ -370,6 +373,10 @@ export class McpOpenAPIBridge {
 
         if (paperlessConnected) {
             this.logger.info("Paperless connection started");
+
+            // Initialize cached metadata
+            this.logger.info("Initializing cached metadata...");
+            await this.cachedMetadata.initialize(this.paperlessAPI);
         }
 
         if (!paperlessConnected) {

@@ -125,47 +125,27 @@ export class McpOpenAPIBridge {
             //'rotate',
             //'delete_pages'
         ]),
-        correspondent_id: z
-            .int()
-            .min(1)
+        //correspondent_id: z.int().min(1).optional().describe("ID of the correspondent to set"),
+        correspondent: z
+            .string()
             .optional()
-            .describe("ID of the correspondent to set"),
-        document_type_id: z
-            .int()
-            .min(1)
+            .describe("Name of the correspondent"),
+        //document_type_id: z.int().min(1).optional().describe("ID of the document type to set"),
+        document_type: z
+            .string()
             .optional()
-            .describe("ID of the document type to set"),
-        add_tags_ids: z
-            .array(z.int().min(1))
+            .describe("Name of the Document type"),
+        //add_tags_ids: z.array(z.int().min(1)).optional().describe("IDs of the tags to add"),
+        //remove_tags_ids: z.array(z.int().min(1)).optional().describe("IDs of the tags to remove"),
+        add_tags: z
+            .array(z.string())
             .optional()
-            .describe("IDs of the tags to add"),
-        remove_tags_ids: z
-            .array(z.int().min(1))
+            .describe("Names of the tags to add"),
+        remove_tags: z
+            .array(z.string())
             .optional()
             .describe("IDs of the tags to remove"),
         //tag_id: z.number().optional().describe("ID of the tag to set"),
-        /*permissions: z
-            .object({
-                owner_id: z.number().nullable().optional().describe("ID of the owner to set"),
-                set_permissions: z
-                    .object({
-                        view: z.object({
-                            users: z.array(z.number()).describe("IDs of the users to set as viewers"),
-                            groups: z.array(z.number()).describe("IDs of the groups to set as viewers")
-                        }),
-                        change: z.object({
-                            users: z.array(z.number()),
-                            groups: z.array(z.number())
-                        })
-                    })
-                    .optional(),
-                merge: z.boolean().optional().default(false).describe("Whether to merge or overwrite permissions"),
-            })
-            .optional(),*/
-        //metadata_document_id: z.number().optional(),
-        //delete_originals: z.boolean().optional(),
-        //pages: z.string().optional(),
-        //degrees: z.number().optional()
     });
 
     public createCorrespondentSchema = z.object({
@@ -343,7 +323,9 @@ export class McpOpenAPIBridge {
                         );
                         result =
                             await this.paperlessAPI.createCorrespondent(args);
-                        await this.cachedMetadata.refreshCorrespondents(this.paperlessAPI);
+                        await this.cachedMetadata.refreshCorrespondents(
+                            this.paperlessAPI
+                        );
                         return result;
                     case "create_document_type":
                         args = this.createDocumentTypeSchema.parse(
@@ -351,14 +333,18 @@ export class McpOpenAPIBridge {
                         );
                         result =
                             await this.paperlessAPI.createDocumentType(args);
-                        await this.cachedMetadata.refreshDocumentTypes(this.paperlessAPI);
+                        await this.cachedMetadata.refreshDocumentTypes(
+                            this.paperlessAPI
+                        );
                         return result;
                     case "create_tag":
                         args = this.createTagSchema.parse(
                             request.params.arguments
                         );
                         result = await this.paperlessAPI.createTag(args);
-                        await this.cachedMetadata.refreshTags(this.paperlessAPI);
+                        await this.cachedMetadata.refreshTags(
+                            this.paperlessAPI
+                        );
                         return result;
                     default:
                         this.logger.error(

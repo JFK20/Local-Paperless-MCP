@@ -63,9 +63,7 @@ export class CachedMetadata {
         }
     }
 
-    private async loadCorrespondents(
-        paperlessAPI: PaperlessAPI
-    ) {
+    private async loadCorrespondents(paperlessAPI: PaperlessAPI) {
         try {
             const response = await paperlessAPI.listCorrespondentsRaw();
             if (response.results.length > 0) {
@@ -123,7 +121,9 @@ export class CachedMetadata {
         await this.loadDocumentTypes(paperlessAPI);
     }
 
-    public getTagsByIds(ids: number[]): components["schemas"]["Tag"][] | undefined {
+    public getTagsByIds(
+        ids: number[]
+    ): components["schemas"]["Tag"][] | undefined {
         if (!ids || ids.length === 0) {
             return undefined;
         }
@@ -144,6 +144,38 @@ export class CachedMetadata {
         id: number
     ): components["schemas"]["DocumentType"] | undefined {
         return this.documentTypes.get(id);
+    }
+
+    public getTagIDByName(name: string): number | undefined {
+        for (const [id, tag] of this.tags.entries()) {
+            if (tag.name.trim().toLowerCase() === name.trim().toLowerCase()) {
+                return id;
+            }
+        }
+        return undefined;
+    }
+
+    public getCorrespondentIDByName(name: string): number | undefined {
+        for (const [id, correspondent] of this.correspondents.entries()) {
+            if (
+                correspondent.name.trim().toLowerCase() ===
+                name.trim().toLowerCase()
+            ) {
+                return id;
+            }
+        }
+        return undefined;
+    }
+
+    public getDocumentTypeIDByName(name: string): number | undefined {
+        for (const [id, docType] of this.documentTypes.entries()) {
+            if (
+                docType.name.trim().toLowerCase() === name.trim().toLowerCase()
+            ) {
+                return id;
+            }
+        }
+        return undefined;
     }
 
     // If I ever fell like implementing a autoUpdate

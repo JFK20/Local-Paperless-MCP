@@ -297,20 +297,20 @@ export class PaperlessAPI {
     public async bulkEditDocuments(args: {
         documentIds: number[];
         method: string;
-        correspondent_id?: number;
-        document_type_id?: number;
+        correspondent?: string;
+        document_type?: string;
         tag_id?: number;
-        add_tags_ids?: number[];
-        remove_tags_ids?: number[];
+        add_tags?: string[];
+        remove_tags?: string[];
     }) {
         try {
             const {
                 documentIds,
                 method,
-                correspondent_id,
-                document_type_id,
-                add_tags_ids,
-                remove_tags_ids,
+                correspondent,
+                document_type,
+                add_tags,
+                remove_tags,
             } = args;
 
             const headers = this.getPaperlessHeaders();
@@ -327,23 +327,73 @@ export class PaperlessAPI {
             // Add method-specific parameters
             switch (methodEnum) {
                 case "set_correspondent":
-                    if (correspondent_id !== undefined) {
-                        requestBody.parameters.correspondent = correspondent_id;
+                    if (correspondent !== undefined) {
+                        let correspondentId =
+                            this.cachedMetadata.getCorrespondentIDByName(
+                                correspondent
+                            );
+                        if (correspondentId) {
+                            requestBody.parameters.correspondent =
+                                correspondent;
+                        } else {
+                            return {
+                                isError: true,
+                                content: [
+                                    {
+                                        type: "text",
+                                        text: `Correspondent "${correspondent}" not found.`,
+                                    },
+                                ],
+                            };
+                        }
                     }
                     break;
                 case "set_document_type":
-                    if (document_type_id !== undefined) {
-                        requestBody.parameters.document_type = document_type_id;
+                    if (document_type !== undefined) {
+                        let documentTypeId =
+                            this.cachedMetadata.getDocumentTypeIDByName(
+                                document_type
+                            );
+                        if (documentTypeId) {
+                            requestBody.parameters.document_type =
+                                document_type;
+                        } else {
+                            return {
+                                isError: true,
+                                content: [
+                                    {
+                                        type: "text",
+                                        text: `Document Type "${document_type}" not found.`,
+                                    },
+                                ],
+                            };
+                        }
                     }
                     break;
                 case "modify_tags":
-                    if (add_tags_ids) {
-                        requestBody.parameters.add_tags = add_tags_ids;
+                    if (add_tags) {
+                        const add_tag_ids: number[] = [];
+                        for (const tag of add_tags) {
+                            let result =
+                                this.cachedMetadata.getTagIDByName(tag);
+                            if (result !== undefined) {
+                                add_tag_ids.push(result);
+                            }
+                        }
+                        requestBody.parameters.add_tags = add_tag_ids;
                     } else {
                         requestBody.parameters.add_tags = [];
                     }
-                    if (remove_tags_ids) {
-                        requestBody.parameters.remove_tags = remove_tags_ids;
+                    if (remove_tags) {
+                        const remove_tag_ids: number[] = [];
+                        for (const tag of remove_tags) {
+                            let result =
+                                this.cachedMetadata.getTagIDByName(tag);
+                            if (result !== undefined) {
+                                remove_tag_ids.push(result);
+                            }
+                        }
+                        requestBody.parameters.remove_tags = remove_tag_ids;
                     } else {
                         requestBody.parameters.remove_tags = [];
                     }

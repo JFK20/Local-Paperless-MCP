@@ -25,7 +25,7 @@ export class CachedMetadata {
         return CachedMetadata.instance;
     }
 
-    async initialize(paperlessAPI: PaperlessAPI): Promise<void> {
+    async initialize(paperlessAPI: PaperlessAPI) {
         this.logger.debug("Initializing metadata cache...");
 
         try {
@@ -45,7 +45,7 @@ export class CachedMetadata {
         }
     }
 
-    private async loadTags(paperlessAPI: PaperlessAPI): Promise<void> {
+    private async loadTags(paperlessAPI: PaperlessAPI) {
         try {
             const response = await paperlessAPI.listTagsRaw();
             if (response.results.length > 0) {
@@ -65,7 +65,7 @@ export class CachedMetadata {
 
     private async loadCorrespondents(
         paperlessAPI: PaperlessAPI
-    ): Promise<void> {
+    ) {
         try {
             const response = await paperlessAPI.listCorrespondentsRaw();
             if (response.results.length > 0) {
@@ -88,7 +88,7 @@ export class CachedMetadata {
         }
     }
 
-    private async loadDocumentTypes(paperlessAPI: PaperlessAPI): Promise<void> {
+    private async loadDocumentTypes(paperlessAPI: PaperlessAPI) {
         try {
             const response = await paperlessAPI.listDocumentTypesRaw();
             if (response.results.length > 0) {
@@ -108,12 +108,22 @@ export class CachedMetadata {
         }
     }
 
-    async refresh(paperlessAPI: PaperlessAPI): Promise<void> {
-        this.logger.info("Refreshing metadata cache...");
-        await this.initialize(paperlessAPI);
+    public async refreshTags(paperlessAPI: PaperlessAPI) {
+        this.logger.info("Refreshing Tag cache...");
+        await this.loadTags(paperlessAPI);
     }
 
-    getTagsByIds(ids: number[]): components["schemas"]["Tag"][] | undefined {
+    public async refreshCorrespondents(paperlessAPI: PaperlessAPI) {
+        this.logger.info("Refreshing Correspondent cache...");
+        await this.loadCorrespondents(paperlessAPI);
+    }
+
+    public async refreshDocumentTypes(paperlessAPI: PaperlessAPI) {
+        this.logger.info("Refreshing Document Type cache...");
+        await this.loadDocumentTypes(paperlessAPI);
+    }
+
+    public getTagsByIds(ids: number[]): components["schemas"]["Tag"][] | undefined {
         if (!ids || ids.length === 0) {
             return undefined;
         }
@@ -124,18 +134,19 @@ export class CachedMetadata {
             ) as components["schemas"]["Tag"][];
     }
 
-    getCorrespondentById(
+    public getCorrespondentById(
         id: number
     ): components["schemas"]["Correspondent"] | undefined {
         return this.correspondents.get(id);
     }
 
-    getDocumentTypeById(
+    public getDocumentTypeById(
         id: number
     ): components["schemas"]["DocumentType"] | undefined {
         return this.documentTypes.get(id);
     }
 
+    // If I ever fell like implementing a autoUpdate
     getLastUpdated(): Date | null {
         return this.lastUpdated;
     }

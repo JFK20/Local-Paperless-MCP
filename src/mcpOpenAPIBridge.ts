@@ -343,7 +343,7 @@ export class McpOpenAPIBridge {
                         );
                         result =
                             await this.paperlessAPI.createCorrespondent(args);
-                        await this.cachedMetadata.refresh(this.paperlessAPI);
+                        await this.cachedMetadata.refreshCorrespondents(this.paperlessAPI);
                         return result;
                     case "create_document_type":
                         args = this.createDocumentTypeSchema.parse(
@@ -351,14 +351,14 @@ export class McpOpenAPIBridge {
                         );
                         result =
                             await this.paperlessAPI.createDocumentType(args);
-                        await this.cachedMetadata.refresh(this.paperlessAPI);
+                        await this.cachedMetadata.refreshDocumentTypes(this.paperlessAPI);
                         return result;
                     case "create_tag":
                         args = this.createTagSchema.parse(
                             request.params.arguments
                         );
                         result = await this.paperlessAPI.createTag(args);
-                        await this.cachedMetadata.refresh(this.paperlessAPI);
+                        await this.cachedMetadata.refreshTags(this.paperlessAPI);
                         return result;
                     default:
                         this.logger.error(

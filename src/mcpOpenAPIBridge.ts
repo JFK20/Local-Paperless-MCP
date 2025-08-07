@@ -351,12 +351,12 @@ export class McpOpenAPIBridge {
                             `Unknown tool: ${request.params.name}`
                         );
                         return {
-                            "jsonrpc": "2.0",
-                            "error": {
-                                "code": -32602,
-                                "message": "Unknown tool: invalid_tool_name"
-                            }
-                        }
+                            jsonrpc: "2.0",
+                            error: {
+                                code: -32602,
+                                message: "Unknown tool: invalid_tool_name",
+                            },
+                        };
                 }
             }
         );

@@ -162,6 +162,69 @@ export class PaperlessAPI {
         }
     }
 
+    public async listDocuments(args: { limit?: number }) {
+        try {
+            const { limit = 100 } = args;
+            const headers = this.getPaperlessHeaders();
+            const params: any = {
+                page_size: limit,
+            };
+            this.logger.info(
+                `listDocuments request params: ${JSON.stringify(params, null, 2)}`
+            );
+            const response = await axios.get<
+                components["schemas"]["PaginatedDocumentList"]
+            >(`${this.paperlessConfig.baseUrl}/api/documents/`, {
+                headers,
+                params: params,
+            });
+
+            //just get the title and id of the documents
+            const formattedDocuments = response.data.results.map((doc) => {
+                return JSON.stringify({
+                    id: doc.id,
+                    title: doc.title,
+                    tags:
+                        this.cachedMetadata
+                            .getTagsByIds(doc.tags)
+                            ?.map((t) => t.name) || [],
+                    correspondent:
+                        this.cachedMetadata.getCorrespondentById(
+                            doc.correspondent
+                        )?.name || "N/A",
+                    document_type:
+                        this.cachedMetadata.getDocumentTypeById(
+                            doc.document_type
+                        )?.name || "N/A",
+                });
+            });
+
+            const searchResult: DocumentSearchResult = {
+                total: response.data.count,
+                documents: formattedDocuments,
+            };
+
+            return {
+                content: [
+                    {
+                        type: "text",
+                        text: JSON.stringify(searchResult, null, 2),
+                    },
+                ],
+            };
+        } catch (error: any) {
+            return {
+                isError: true,
+                content: [
+                    {
+                        type: "text",
+                        text: `Error: ${error.message}`,
+                    },
+                ],
+            };
+        }
+    }
+
     //Helper Function to Format a Tag
     public formatTag(tag: components["schemas"]["Tag"]) {
         return `Tag ID: ${tag.id}, Name: ${tag.name}, Color: ${tag.color}, Document with this Tag: ${tag.document_count ?? 0}`;

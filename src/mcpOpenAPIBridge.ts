@@ -38,6 +38,14 @@ export class McpOpenAPIBridge {
         this.setupMCPHandlers();
     }
 
+    public listDocumentSchemas = z.object({
+        limit: z
+            .int()
+            .min(1)
+            .optional()
+            .describe("Maximum number of documents to return"),
+    });
+
     public getDocumentSchema = z
         .object({
             id: z
@@ -109,7 +117,7 @@ export class McpOpenAPIBridge {
 
     public bulkEditSchema = z.object({
         documentIds: z
-            .array(z.int().min(1))
+            .array(z.string().min(1))
             .describe("IDs of the documents to edit"),
         method: z.enum([
             "set_correspondent",
@@ -216,6 +224,16 @@ export class McpOpenAPIBridge {
                         },
                     },
                     {
+                        name: "list_documents",
+                        description: "Lists documents in Paperless NGX.",
+                        inputSchema: z.toJSONSchema(this.listDocumentSchemas),
+                        annotations: {
+                            title: "List Documents",
+                            readOnlyHint: true,
+                            openWorldHint: true,
+                        },
+                    },
+                    {
                         name: "get_documents",
                         description: "Gets documents from Paperless NGX.",
                         inputSchema: z.toJSONSchema(this.getDocumentSchema),
@@ -301,6 +319,11 @@ export class McpOpenAPIBridge {
                         return await this.paperlessAPI.listCorrespondents();
                     case "list_document_types":
                         return await this.paperlessAPI.listDocumentTypes();
+                    case "list_documents":
+                        args = this.listDocumentSchemas.parse(
+                            request.params.arguments
+                        );
+                        return await this.paperlessAPI.listDocuments(args);
                     case "get_documents":
                         args = this.getDocumentSchema.parse(
                             request.params.arguments

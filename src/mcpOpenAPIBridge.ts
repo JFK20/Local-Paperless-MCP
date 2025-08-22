@@ -314,10 +314,19 @@ export class McpOpenAPIBridge {
                 let result;
                 switch (request.params.name) {
                     case "list_tags":
+                        await this.cachedMetadata.refreshTags(
+                            this.paperlessAPI
+                        );
                         return await this.paperlessAPI.listTags();
                     case "list_correspondents":
+                        await this.cachedMetadata.refreshCorrespondents(
+                            this.paperlessAPI
+                        );
                         return await this.paperlessAPI.listCorrespondents();
                     case "list_document_types":
+                        await this.cachedMetadata.refreshDocumentTypes(
+                            this.paperlessAPI
+                        );
                         return await this.paperlessAPI.listDocumentTypes();
                     case "list_documents":
                         args = this.listDocumentSchemas.parse(

@@ -122,39 +122,42 @@ export class McpOpenAPIBridge {
         method: z.enum([
             "set_correspondent",
             "set_document_type",
-            //'set_storage_path',
-            //'add_tag',
-            //'remove_tag',
             "modify_tags",
             "delete",
-            //'reprocess',
-            //'merge',
-            //'split',
-            //'rotate',
-            //'delete_pages'
-        ]),
-        //correspondent_id: z.int().min(1).optional().describe("ID of the correspondent to set"),
+        ]).describe("The bulk edit method to apply. Available options: set_correspondent (change document correspondent), set_document_type (change document type), modify_tags (add/remove tags), delete (delete documents)"),
         correspondent: z
             .string()
             .optional()
-            .describe("Name of the correspondent"),
-        //document_type_id: z.int().min(1).optional().describe("ID of the document type to set"),
+            .describe("Name of the correspondent (required when method is 'set_correspondent')"),
         document_type: z
             .string()
             .optional()
-            .describe("Name of the Document type"),
-        //add_tags_ids: z.array(z.int().min(1)).optional().describe("IDs of the tags to add"),
-        //remove_tags_ids: z.array(z.int().min(1)).optional().describe("IDs of the tags to remove"),
+            .describe("Name of the Document type (required when method is 'set_document_type')"),
         add_tags: z
             .array(z.string())
             .optional()
-            .describe("Names of the tags to add"),
+            .describe("Names of the tags to add (used with 'modify_tags' method) always formatted as a list of strings"),
         remove_tags: z
             .array(z.string())
             .optional()
-            .describe("IDs of the tags to remove"),
-        //tag_id: z.number().optional().describe("ID of the tag to set"),
-    });
+            .describe("Names of the tags to remove (used with 'modify_tags' method) always formatted as a list of strings"),
+    }).refine(
+        (data) => {
+            if (data.method === "set_correspondent" && !data.correspondent) {
+                return false;
+            }
+            if (data.method === "set_document_type" && !data.document_type) {
+                return false;
+            }
+            if (data.method === "modify_tags" && !data.add_tags && !data.remove_tags) {
+                return false;
+            }
+            return true;
+        },
+        {
+            message: "Required parameters missing for the selected method"
+        }
+    );
 
     public createCorrespondentSchema = z.object({
         name: z.string().describe("Name of the correspondent"),
@@ -246,7 +249,7 @@ export class McpOpenAPIBridge {
                     {
                         name: "edit_documents",
                         description:
-                            "edit documents or their Metadata like Tags, Correspondents in Paperless NGX.",
+                            "Bulk edit documents in Paperless NGX. Supported methods: 'set_correspondent', 'set_document_type', 'modify_tags', 'delete'. Use 'set_correspondent' to change the correspondent, 'set_document_type' to change document type, 'modify_tags' to add/remove tags, or 'delete' to remove documents.",
                         inputSchema: z.toJSONSchema(this.bulkEditSchema),
                         annotations: {
                             title: "Edit Documents",

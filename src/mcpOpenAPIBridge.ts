@@ -115,49 +115,73 @@ export class McpOpenAPIBridge {
             }
         );
 
-    public bulkEditSchema = z.object({
-        documentIds: z
-            .array(z.string().min(1))
-            .describe("IDs of the documents to edit"),
-        method: z.enum([
-            "set_correspondent",
-            "set_document_type",
-            "modify_tags",
-            "delete",
-        ]).describe("The bulk edit method to apply. Available options: set_correspondent (change document correspondent), set_document_type (change document type), modify_tags (add/remove tags), delete (delete documents)"),
-        correspondent: z
-            .string()
-            .optional()
-            .describe("Name of the correspondent (required when method is 'set_correspondent')"),
-        document_type: z
-            .string()
-            .optional()
-            .describe("Name of the Document type (required when method is 'set_document_type')"),
-        add_tags: z
-            .array(z.string())
-            .optional()
-            .describe("Names of the tags to add (used with 'modify_tags' method) always formatted as a list of strings"),
-        remove_tags: z
-            .array(z.string())
-            .optional()
-            .describe("Names of the tags to remove (used with 'modify_tags' method) always formatted as a list of strings"),
-    }).refine(
-        (data) => {
-            if (data.method === "set_correspondent" && !data.correspondent) {
-                return false;
+    public bulkEditSchema = z
+        .object({
+            documentIds: z
+                .array(z.string().min(1))
+                .describe("IDs of the documents to edit"),
+            method: z
+                .enum([
+                    "set_correspondent",
+                    "set_document_type",
+                    "modify_tags",
+                    "delete",
+                ])
+                .describe(
+                    "The bulk edit method to apply. Available options: set_correspondent (change document correspondent), set_document_type (change document type), modify_tags (add/remove tags), delete (delete documents)"
+                ),
+            correspondent: z
+                .string()
+                .optional()
+                .describe(
+                    "Name of the correspondent (required when method is 'set_correspondent')"
+                ),
+            document_type: z
+                .string()
+                .optional()
+                .describe(
+                    "Name of the Document type (required when method is 'set_document_type')"
+                ),
+            add_tags: z
+                .array(z.string())
+                .optional()
+                .describe(
+                    "Names of the tags to add (used with 'modify_tags' method) always formatted as a list of strings"
+                ),
+            remove_tags: z
+                .array(z.string())
+                .optional()
+                .describe(
+                    "Names of the tags to remove (used with 'modify_tags' method) always formatted as a list of strings"
+                ),
+        })
+        .refine(
+            (data) => {
+                if (
+                    data.method === "set_correspondent" &&
+                    !data.correspondent
+                ) {
+                    return false;
+                }
+                if (
+                    data.method === "set_document_type" &&
+                    !data.document_type
+                ) {
+                    return false;
+                }
+                if (
+                    data.method === "modify_tags" &&
+                    !data.add_tags &&
+                    !data.remove_tags
+                ) {
+                    return false;
+                }
+                return true;
+            },
+            {
+                message: "Required parameters missing for the selected method",
             }
-            if (data.method === "set_document_type" && !data.document_type) {
-                return false;
-            }
-            if (data.method === "modify_tags" && !data.add_tags && !data.remove_tags) {
-                return false;
-            }
-            return true;
-        },
-        {
-            message: "Required parameters missing for the selected method"
-        }
-    );
+        );
 
     public createCorrespondentSchema = z.object({
         name: z.string().describe("Name of the correspondent"),

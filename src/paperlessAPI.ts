@@ -489,7 +489,9 @@ export class PaperlessAPI {
                 ],
             };
         } catch (error: any) {
-            this.logger.error("when editing the following error occurred" + error);
+            this.logger.error(
+                "when editing the following error occurred" + error
+            );
             return {
                 isError: true,
                 content: [

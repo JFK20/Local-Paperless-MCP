@@ -79,6 +79,7 @@ The server provides the following MCP tools:
 - **`list_tags`** - Lists all tags in Paperless NGX
 - **`list_correspondents`** - Lists all correspondents in Paperless NGX  
 - **`list_document_types`** - Lists all document types in Paperless NGX
+- **`list_documents`** - Lists documents in Paperless NGX
 - **`get_documents`** - Gets documents from Paperless NGX with various search filters
 - **`edit_documents`** - Edit documents or their metadata like tags, correspondents in Paperless NGX
 - **`create_correspondent`** - Creates a new correspondent in Paperless NGX
@@ -94,9 +95,13 @@ This MCP server is tested and used with Open WebUI when deployed with mcpo.
 ```
 src/
 ├── index.ts             # Main entry point
-├── mcpOpenAPIBridge.ts   # MCP Server implementation
+├── mcpOpenAPIBridge.ts  # MCP Server implementation
 ├── paperlessAPI.ts      # Paperless-NGX API client
-├── own_types.d.ts       # TypeScript definitions
+├── logger.ts            # Logging utility
 ├── startTests.ts        # Connection tests
-└── debugPoints.ts       # Debug helper functions
+├── debugPoints.ts       # Debug helper functions
+├── cachedMetadata       # Cached metadata for lookups
+└── types/
+    ├── gen_paperless.d.ts  # types generated from Paperless-NGX OpenAPI spec
+    └── own_types.d.ts      # Custom types
 ```

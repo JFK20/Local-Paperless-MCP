@@ -56,6 +56,7 @@ export class CachedMetadata {
                         this.tags.set(tag.id, tag);
                     }
                 });
+                this.logger.debug(`Loaded ${this.tags.size} tags into cache`);
             }
         } catch (error) {
             this.logger.error("Failed to load tags", error);
@@ -79,6 +80,9 @@ export class CachedMetadata {
                         }
                     }
                 );
+                this.logger.debug(
+                    `Loaded ${this.correspondents.size} correspondents into cache`
+                );
             }
         } catch (error) {
             this.logger.error("Failed to load correspondents", error);
@@ -99,6 +103,9 @@ export class CachedMetadata {
                         }
                     }
                 );
+                this.logger.debug(
+                    `Loaded ${this.documentTypes.size} document types into cache`
+                );
             }
         } catch (error) {
             this.logger.error("Failed to load document types", error);
@@ -107,17 +114,17 @@ export class CachedMetadata {
     }
 
     public async refreshTags(paperlessAPI: PaperlessAPI) {
-        this.logger.info("Refreshing Tag cache...");
+        this.logger.debug("Refreshing Tag cache...");
         await this.loadTags(paperlessAPI);
     }
 
     public async refreshCorrespondents(paperlessAPI: PaperlessAPI) {
-        this.logger.info("Refreshing Correspondent cache...");
+        this.logger.debug("Refreshing Correspondent cache...");
         await this.loadCorrespondents(paperlessAPI);
     }
 
     public async refreshDocumentTypes(paperlessAPI: PaperlessAPI) {
-        this.logger.info("Refreshing Document Type cache...");
+        this.logger.debug("Refreshing Document Type cache...");
         await this.loadDocumentTypes(paperlessAPI);
     }
 

@@ -396,8 +396,7 @@ export class PaperlessAPI {
                                 correspondent
                             );
                         if (correspondentId) {
-                            requestBody.parameters.correspondent =
-                                correspondent;
+                            requestBody.parameters.correspondent = correspondentId;
                         } else {
                             return {
                                 isError: true,
@@ -418,8 +417,7 @@ export class PaperlessAPI {
                                 document_type
                             );
                         if (documentTypeId) {
-                            requestBody.parameters.document_type =
-                                document_type;
+                            requestBody.parameters.document_type = documentTypeId;
                         } else {
                             return {
                                 isError: true,
@@ -489,9 +487,7 @@ export class PaperlessAPI {
                 ],
             };
         } catch (error: any) {
-            this.logger.error(
-                "when editing the following error occurred" + error
-            );
+            this.logger.error("when editing the following error occurred" + error);
             return {
                 isError: true,
                 content: [

@@ -118,7 +118,7 @@ export class McpOpenAPIBridge {
     public bulkEditSchema = z
         .object({
             documentIds: z
-                .array(z.string().min(1))
+                .array(z.int().min(1))
                 .describe("IDs of the documents to edit"),
             method: z
                 .enum([
